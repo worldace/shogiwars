@@ -1,7 +1,5 @@
 /* ※このファイルはSJISで保存してください */
 
-var IE = new ActiveXObject("InternetExplorer.Application");
-IE.visible = false;
 
 
 function 将棋ウォーズ(){
@@ -19,6 +17,7 @@ function 将棋ウォーズ(){
     for(var i = 0; i < gtype.length; i++){
         将棋ウォーズ.現在のモード = gtype[i].mode;
         将棋ウォーズ.ダウンロード済み棋譜一覧 = ファイル一覧(gtype[i].mode, "base");
+
         将棋ウォーズ.棋譜一覧ページ解析("https://shogiwars.heroz.jp/games/history?gtype=" + gtype[i].name + "&user_id=" + 将棋ウォーズ.ユーザID);
     }
 
@@ -30,27 +29,34 @@ function 将棋ウォーズ(){
 将棋ウォーズ.棋譜一覧ページ解析 = function(url){
     var document   = IE移動(url);
     var a          = document.querySelectorAll("a");
+    var 解析結果   = [];
 
     for(var i = 0; i < a.length; i++){
-        if(a[i].textContent === '\u898B\u308B'){ //見る
+       if(a[i].textContent === '\u898B\u308B'){ //見る
             var 棋譜ID = String(a[i].onclick).match(/'(.+?)'/)[1];
             if(将棋ウォーズ.ダウンロード済み棋譜一覧.indexOf(棋譜ID) !== -1){
-                return;
+                break;
             }
-
-            var 棋譜ページ解析結果 = 将棋ウォーズ.棋譜ページ解析(棋譜ID);
-            if(棋譜ページ解析結果.棋譜){
-                将棋ウォーズ.棋譜ファイル保存(棋譜ページ解析結果);
-                将棋ウォーズ.取得件数++;
-                return;
-            }
+            解析結果.push(棋譜ID);
         }
         else if(a[i].textContent === '\u6B21'){ //次
-            将棋ウォーズ.棋譜一覧ページ解析(a[i].href);
+            解析結果.次のページ = a[i].href;
             break;
         }
     }
+
+    for(var i = 0; i < 解析結果.length; i++){
+        var 棋譜ページ解析結果 = 将棋ウォーズ.棋譜ページ解析(解析結果[i]);
+        if(棋譜ページ解析結果.棋譜){
+            将棋ウォーズ.棋譜ファイル保存(棋譜ページ解析結果);
+            将棋ウォーズ.取得件数++;
+        }
+    }
+    if(解析結果.次のページ){
+        将棋ウォーズ.棋譜一覧ページ解析(解析結果.次のページ);
+    }
 };
+
 
 
 将棋ウォーズ.棋譜ページ解析 = function(棋譜ID){
@@ -77,7 +83,7 @@ function 将棋ウォーズ(){
     kif += "場所：https://kif-pona.heroz.jp/games/" + 解析結果.棋譜ID + "\r\n";
     kif +=  将棋ウォーズ.KIF変換(解析結果.棋譜);
 
-    var パス   = 将棋ウォーズ.現在のモード + '/' + 解析結果.棋譜ID + '.kif';
+    var パス = 将棋ウォーズ.現在のモード + '/' + 解析結果.棋譜ID + '.kif';
     ファイル保存(パス, kif, "Shift_JIS");
 };
 
@@ -90,14 +96,16 @@ function 将棋ウォーズ(){
     var 成り駒 = ['TO', 'NY', 'NK', 'NG', 'UM', 'RY'];
     var 全数字 = {1:'１', 2:'２', 3:'３', 4:'４', 5:'５', 6:'６', 7:'７', 8:'８', 9:'９'};
     var 漢数字 = {1:'一', 2:'二', 3:'三', 4:'四', 5:'五', 6:'六', 7:'七', 8:'八', 9:'九'};
+    var 終局   = {CHECKMATE:'詰み', TORYO:'投了', DISCONNECT:'反則負け', TIMEOUT:'切れ負け', OUTE_SENNICHI:'反則負け', SENNICHI:'千日手'};
 
     csa = csa.split("\t");
     for(var i = 0; i < csa.length; i++){
-        var kif    = (i + 1) + " ";
+        var 手数   = i + 1;
         var 指し手 = csa[i].split(",")[0];
         var 時間   = csa[i].split(",")[1];
 
         if(指し手.match(/^[\+\-]/)){
+            var kif    = "";
             var 前X = 指し手.substr(1, 1);
             var 前Y = 指し手.substr(2, 1);
             var 後X = 指し手.substr(3, 1);
@@ -114,11 +122,15 @@ function 将棋ウォーズ(){
                 kif += 駒変換[駒];
             }
             kif += (前X == 0) ? '打' : ('(' + 前X + 前Y + ')');
+            result += 手数 + " " + kif + "\r\n";
         }
         else{
-            
+            var 終局文字列 = 指し手.match(/(_WIN|DRAW)_(\w+)/);
+            if(終局文字列[2] in 終局){
+                result += 手数 + " " + 終局[終局文字列[2]] + "\r\n";
+            }
+            break;
         }
-        result += kif + "\r\n";
     }
 
     return result;
@@ -252,10 +264,11 @@ Array.prototype.indexOf = function(obj, start){
 };
 
 
-
+var IE = new ActiveXObject("InternetExplorer.Application");
+IE.visible = false;
 将棋ウォーズ();
 
 
-// ウォーズ仕様の参考ページ
-// https://github.com/teriyaki398/MyKifu
-// https://github.com/tosh1ki/shogiwars
+// ウォーズ仕様の参考ページ https://github.com/tosh1ki/shogiwars
+// CSA形式の参考ページ http://www2.computer-shogi.org/protocol/record_v22.html
+// KIF形式の参考ページ http://kakinoki.o.oo7.jp/kif_format.html

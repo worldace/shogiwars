@@ -1,4 +1,5 @@
 ■将棋ウォーズ棋譜ダウンローダ
+https://spelunker2.wordpress.com/?p=8378
 
 
 将棋ウォーズの棋譜を一括ダウンロードするWindows用のソフトです。

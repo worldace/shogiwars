@@ -139,18 +139,19 @@ function 将棋ウォーズ(){
 };
 
 
+
 将棋ウォーズ.KIF変換.成り判定 = function (csa, 手数, 成り駒, 前X, 前Y){
     //前回の位置が成り駒であるとfalse (それ以外はtrue)
     //検索対象は現在の手数まで。自分の手番のみ
-    var 判定 = 前X + 前Y + 成り駒;
+    var 判定 = new RegExp('^[\+\-]\\d\\d' + 前X + 前Y);
     var 手番 = 手数 % 2;
 
-    for(var i = 0; i < 手数; i++){
+    for(var i = 手数; i >= 0; i--){
         if(i % 2 !== 手番){
             continue;
         }
         if(csa[i].match(判定)){
-            return false;
+            return (csa[i].match(成り駒)) ? false : true;
         }
     }
     return true;

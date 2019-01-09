@@ -33,8 +33,9 @@ function 将棋ウォーズ(){
 
     for(var i = 0; i < a.length; i++){
        if(a[i].textContent === '\u898B\u308B'){ //見る
-            var 棋譜ID = String(a[i].onclick).match(/'(.+?)'/)[1];
-            if(将棋ウォーズ.ダウンロード済み棋譜一覧.indexOf(棋譜ID) !== -1){
+            var 棋譜ID   = String(a[i].onclick).match(/'(.+?)'/)[1];
+            var ファイル = 将棋ウォーズ.棋譜IDをファイル名に変換(棋譜ID)
+            if(将棋ウォーズ.ダウンロード済み棋譜一覧.indexOf(ファイル) !== -1){
                 break;
             }
             解析結果.push(棋譜ID);
@@ -70,7 +71,8 @@ function 将棋ウォーズ(){
         後手名前: 棋譜ID.split(/-/)[1],
         先手段級: ソース.match(/dan0: "(.+?)"/)[1],
         後手段級: ソース.match(/dan1: "(.+?)"/)[1],
-        棋譜    : ソース.match(/receiveMove\("(.+?)"/)[1]
+        棋譜    : ソース.match(/receiveMove\("(.+?)"/)[1],
+        ファイル: 将棋ウォーズ.棋譜IDをファイル名に変換(棋譜ID)
     };
 };
 
@@ -83,7 +85,7 @@ function 将棋ウォーズ(){
     kif += "場所：https://kif-pona.heroz.jp/games/" + 解析結果.棋譜ID + "\r\n";
     kif +=  将棋ウォーズ.KIF変換(解析結果.棋譜);
 
-    var パス = 将棋ウォーズ.現在のモード + '/' + 解析結果.棋譜ID + '.kif';
+    var パス = 将棋ウォーズ.現在のモード + '/' + 解析結果.ファイル + '.kif';
     ファイル保存(パス, kif, "Shift_JIS");
 };
 
@@ -154,6 +156,12 @@ function 将棋ウォーズ(){
     return true;
 };
 
+
+
+将棋ウォーズ.棋譜IDをファイル名に変換 = function (棋譜ID){
+    var t = 棋譜ID.split('-');
+    return t[2] + "-" + t[0] + "-" + t[1];
+}
 
 
 将棋ウォーズ.終了 = function(str){

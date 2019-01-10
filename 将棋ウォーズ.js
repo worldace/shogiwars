@@ -61,9 +61,8 @@ function 将棋ウォーズ(){
 
 
 将棋ウォーズ.棋譜ページ解析 = function(棋譜ID){
-    var document = IE移動("https://kif-pona.heroz.jp/games/" + 棋譜ID);
-    var script   = document.querySelectorAll("script");
-    var ソース   = script[script.length-3].textContent; //決め打ち
+    var html   = HTTP_GET("https://kif-pona.heroz.jp/games/" + 棋譜ID);
+    var ソース = html.substr(html.indexOf('gamedata'));
 
     return {
         棋譜ID  : 棋譜ID,
@@ -71,8 +70,7 @@ function 将棋ウォーズ(){
         後手名前: 棋譜ID.split(/-/)[1],
         先手段級: ソース.match(/dan0: "(.+?)"/)[1],
         後手段級: ソース.match(/dan1: "(.+?)"/)[1],
-        棋譜    : ソース.match(/receiveMove\("(.+?)"/)[1],
-        ファイル: 将棋ウォーズ.棋譜IDをファイル名に変換(棋譜ID)
+        棋譜    : ソース.match(/receiveMove\("(.+?)"/)[1]
     };
 };
 
@@ -87,7 +85,7 @@ function 将棋ウォーズ(){
     kif += "場所：https://kif-pona.heroz.jp/games/" + 解析結果.棋譜ID + "\r\n";
     kif +=  将棋ウォーズ.KIF変換(解析結果.棋譜);
 
-    var パス = 将棋ウォーズ.現在のモード + '/' + 解析結果.ファイル + '.kif';
+    var パス = 将棋ウォーズ.現在のモード + '/' + 将棋ウォーズ.棋譜IDをファイル名に変換(解析結果.棋譜ID) + '.kif';
     ファイル保存(パス, kif, "Shift_JIS");
 };
 
@@ -126,7 +124,7 @@ function 将棋ウォーズ(){
             kif += 全数字[後X]; //"同　歩"みたいな表現に対応していない
             kif += 漢数字[後Y];
 
-            if(成り駒.indexOf(駒) > -1 && 将棋ウォーズ.KIF変換.成り判定(csa, i, 駒, 前X, 前Y)){
+            if(成り駒.indexOf(駒) > -1 && 将棋ウォーズ.KIF変換.成り判定(csa, i, 手番, 駒, 前X, 前Y)){
                 kif += 逆変換[駒] + "成";
             }
             else{
@@ -164,16 +162,12 @@ function 将棋ウォーズ(){
 
 
 
-将棋ウォーズ.KIF変換.成り判定 = function (csa, 手数, 成り駒, 前X, 前Y){
+将棋ウォーズ.KIF変換.成り判定 = function (csa, 手数, 手番, 成り駒, 前X, 前Y){
     //前回の位置が成り駒であるとfalse (それ以外はtrue)
     //検索対象は現在の手数まで。自分の手番のみ
-    var 判定 = new RegExp('^[\+\-]\\d\\d' + 前X + 前Y);
-    var 手番 = 手数 % 2;
+    var 判定 = new RegExp('^\\' + 手番 + '\\d\\d' + 前X + 前Y);
 
-    for(var i = 手数; i >= 0; i--){
-        if(i % 2 !== 手番){
-            continue;
-        }
+    for(var i = 手数; i >= 0; i -= 2){
         if(csa[i].match(判定)){
             return (csa[i].match(成り駒)) ? false : true;
         }
@@ -286,6 +280,14 @@ function ファイル一覧(dir, type){
     return result;
 }
 
+
+
+function HTTP_GET(url){
+    var http = new ActiveXObject('Msxml2.ServerXMLHTTP');
+    http.open('GET', url, false);
+    http.send();
+    return http.responseText;
+}
 
 
 

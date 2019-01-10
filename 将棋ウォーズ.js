@@ -80,6 +80,7 @@ function 将棋ウォーズ(){
 
 将棋ウォーズ.棋譜ファイル保存 = function(解析結果){
     var kif = "";
+    kif += "開始日時：" + 将棋ウォーズ.棋譜IDを時間に変換(解析結果.棋譜ID) + "\r\n";
     kif += "先手：" + 解析結果.先手名前 + " "+ 解析結果.先手段級 + "\r\n";
     kif += "後手：" + 解析結果.後手名前 + " "+ 解析結果.後手段級 + "\r\n";
     kif += "棋戦：将棋ウォーズ " + 将棋ウォーズ.現在のモード + "\r\n";
@@ -199,9 +200,25 @@ function 将棋ウォーズ(){
 
 
 将棋ウォーズ.棋譜IDをファイル名に変換 = function (棋譜ID){
-    var t = 棋譜ID.split('-');
-    return t[2] + "-" + t[0] + "-" + t[1];
+    var id = 棋譜ID.split('-');
+    return id[2] + "-" + id[0] + "-" + id[1];
 }
+
+
+
+将棋ウォーズ.棋譜IDを時間に変換 = function (棋譜ID){
+    var id = 棋譜ID.split('-');
+
+    var 年 = id[2].substr(0, 4);
+    var 月 = id[2].substr(4, 2);
+    var 日 = id[2].substr(6, 2);
+    var 時 = id[2].substr(9, 2);
+    var 分 = id[2].substr(11, 2);
+    var 秒 = id[2].substr(13, 2);
+
+    return 年 + "/" + 月 + "/" + 日 + " " + 時 + ":" + 分 + ":" + 秒;
+};
+
 
 
 将棋ウォーズ.終了 = function(str){

@@ -33,8 +33,13 @@ function 将棋ウォーズ(){
 
     for(var i = 0; i < a.length; i++){
        if(a[i].textContent === '\u898B\u308B'){ //見る
-            var 棋譜ID   = String(a[i].onclick).match(/'(.+?)'/)[1];
-            var ファイル = 将棋ウォーズ.棋譜IDをファイル名に変換(棋譜ID)
+            if(a[i].onclick){ //自分
+                var 棋譜ID = String(a[i].onclick).match(/'(.+?)'/)[1];
+            }
+            else{ //他人
+                var 棋譜ID = String(a[i].href).match(/games\/([\w\-]+)/)[1];
+            }
+            var ファイル = 将棋ウォーズ.棋譜IDをファイル名に変換(棋譜ID);
             if(将棋ウォーズ.ダウンロード済み棋譜一覧.indexOf(ファイル) === -1){
                 解析結果.push(棋譜ID);
             }

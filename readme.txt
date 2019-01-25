@@ -9,7 +9,6 @@ https://spelunker2.wordpress.com/2019/01/09/shogiwars/
 
 
 ・Windows専用です
-・自分の棋譜のみダウンロードできます
 ・直近30日の棋譜のみダウンロードできます
 ・指導対局には対応していません
 
@@ -17,7 +16,7 @@ https://spelunker2.wordpress.com/2019/01/09/shogiwars/
 ■使い方
 
 
-1. 「id.txt」に自分の将棋ウォーズIDを記述してください
+1. 「id.txt」に将棋ウォーズIDを記述してください
 
 2. IEで将棋ウォーズにログインしてください。https://shogiwars.heroz.jp/web_app/standard/
    ログイン済みならこの作業は不要です

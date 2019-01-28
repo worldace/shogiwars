@@ -5,7 +5,7 @@
 function 将棋ウォーズ(){
     多重起動防止();
 
-    将棋ウォーズ.ID  = ファイル取得("id.txt").replace(/^\s+|\s+$/g, "");
+    将棋ウォーズ.ID = ファイル取得("id.txt").replace(/^\s+|\s+$/g, "");
     if(!将棋ウォーズ.ID){
         将棋ウォーズ.終了("id.txtに将棋ウォーズのIDを記述してください")
     }
@@ -16,12 +16,12 @@ function 将棋ウォーズ(){
 
     var gtype = {'10分':'', '3分':'sb', '10秒':'s1'};
 
-    for(var key in gtype){
-        将棋ウォーズ.現在のモード = key;
-        フォルダ作成(将棋ウォーズ.ID + '/' + key)
-        将棋ウォーズ.ダウンロード済み棋譜一覧 = ファイル一覧(将棋ウォーズ.ID + '/' + key);
+    for(var k in gtype){
+        将棋ウォーズ.現在のモード = k;
+        フォルダ作成(将棋ウォーズ.ID + '/' + k)
+        将棋ウォーズ.ダウンロード済み棋譜一覧 = ファイル一覧(将棋ウォーズ.ID + '/' + k);
 
-        将棋ウォーズ.棋譜一覧ページ解析("https://shogiwars.heroz.jp/games/history?gtype=" + gtype[key] + "&user_id=" + 将棋ウォーズ.ID);
+        将棋ウォーズ.棋譜一覧ページ解析("https://shogiwars.heroz.jp/games/history?gtype=" + gtype[k] + "&user_id=" + 将棋ウォーズ.ID);
     }
 
     将棋ウォーズ.終了(将棋ウォーズ.取得件数 + "件のファイルを取得しました")
@@ -30,16 +30,14 @@ function 将棋ウォーズ(){
 
 
 将棋ウォーズ.棋譜一覧ページ解析 = function(url){
-    var 解析結果   = [];
-
-    var document   = IE移動(url);
-    var a          = document.querySelectorAll("a");
+    var 解析結果 = [];
+    var document = IE移動(url);
+    var a        = document.querySelectorAll("a");
 
     for(var i = 0; i < a.length; i++){
        if(a[i].textContent === '\u898B\u308B'){ //見る
-            var 棋譜ID   = (a[i].onclick)  ?  String(a[i].onclick).match(/'(.+?)'/)[1]  :  String(a[i].href).match(/games\/([\w\-]+)/)[1]; // 自分 or 他人
-            var ファイル = 将棋ウォーズ.棋譜IDをファイル名に変換(棋譜ID);
-            if(将棋ウォーズ.ダウンロード済み棋譜一覧.indexOf(ファイル) === -1){
+            var 棋譜ID = (a[i].onclick)  ?  String(a[i].onclick).match(/'(.+?)'/)[1]  :  String(a[i].href).match(/games\/([\w\-]+)/)[1]; // 自分 or 他人
+            if(将棋ウォーズ.ダウンロード済み棋譜一覧.indexOf(将棋ウォーズ.棋譜IDをファイル名に変換(棋譜ID)) === -1){
                 解析結果.push(棋譜ID);
             }
         }

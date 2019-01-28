@@ -12,13 +12,14 @@ function 将棋ウォーズ(){
         将棋ウォーズ.終了("id.txtに将棋ウォーズのIDを記述してください")
     }
 
-    将棋ウォーズ.フォルダ作成();
+    フォルダ作成(将棋ウォーズ.ユーザID);
 
     var gtype = [{mode: '10分', name: ''}, {mode: '3分', name: 'sb'}, {mode: '10秒', name: 's1'}];
 
     for(var i = 0; i < gtype.length; i++){
         将棋ウォーズ.現在のモード = gtype[i].mode;
-        将棋ウォーズ.ダウンロード済み棋譜一覧 = ファイル一覧(将棋ウォーズ.ユーザID + '/' + gtype[i].mode, "base");
+        フォルダ作成(将棋ウォーズ.ユーザID + '/' + 将棋ウォーズ.現在のモード)
+        将棋ウォーズ.ダウンロード済み棋譜一覧 = ファイル一覧(将棋ウォーズ.ユーザID + '/' + 将棋ウォーズ.現在のモード, "base");
 
         将棋ウォーズ.棋譜一覧ページ解析("https://shogiwars.heroz.jp/games/history?gtype=" + gtype[i].name + "&user_id=" + 将棋ウォーズ.ユーザID);
     }
@@ -73,25 +74,6 @@ function 将棋ウォーズ(){
         後手段級: ソース.match(/dan1: "(.+?)"/)[1],
         棋譜    : ソース.match(/receiveMove\("(.+?)"/)[1]
     };
-};
-
-
-
-将棋ウォーズ.フォルダ作成 = function(){
-    var fs = new ActiveXObject("Scripting.FileSystemObject");
-    
-    if(!fs.FolderExists(将棋ウォーズ.ユーザID)){
-        fs.CreateFolder(将棋ウォーズ.ユーザID);
-    }
-    if(!fs.FolderExists(将棋ウォーズ.ユーザID + '/10分')){
-        fs.CreateFolder(将棋ウォーズ.ユーザID + '/10分');
-    }
-    if(!fs.FolderExists(将棋ウォーズ.ユーザID + '/3分')){
-        fs.CreateFolder(将棋ウォーズ.ユーザID + '/3分');
-    }
-    if(!fs.FolderExists(将棋ウォーズ.ユーザID + '/10秒')){
-        fs.CreateFolder(将棋ウォーズ.ユーザID + '/10秒');
-    }
 };
 
 
@@ -298,6 +280,16 @@ function ファイル一覧(dir, type){
         }
     }
     return result;
+}
+
+
+
+function フォルダ作成(path){
+    var fs = new ActiveXObject("Scripting.FileSystemObject");
+
+    if(!fs.FolderExists(path)){
+        fs.CreateFolder(path);
+    }
 }
 
 

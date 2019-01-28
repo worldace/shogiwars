@@ -42,7 +42,7 @@ function 将棋ウォーズ(){
         }
         else if(a[i].textContent === '\u6B21' && 取得済){ //次
             将棋ウォーズ.一覧ページ解析(a[i].href);
-            break;
+            return;
         }
     }
 };
@@ -53,18 +53,18 @@ function 将棋ウォーズ(){
     var html   = HTTP_GET("https://kif-pona.heroz.jp/games/" + 棋譜ID);
     var ソース = html.substr(html.indexOf('gamedata'));
 
-    var 解析結果 = {
+    if(ソース.indexOf('receiveMove') === -1){
+        return;
+    }
+
+    将棋ウォーズ.KIF保存({
         棋譜ID  : 棋譜ID,
         先手名前: 棋譜ID.split(/-/)[0],
         後手名前: 棋譜ID.split(/-/)[1],
         先手段級: ソース.match(/dan0: "(.+?)"/)[1],
         後手段級: ソース.match(/dan1: "(.+?)"/)[1],
         棋譜    : ソース.match(/receiveMove\("(.+?)"/)[1]
-    };
-
-    if(解析結果.棋譜){
-        将棋ウォーズ.KIF保存(解析結果);
-    }
+    });
 };
 
 
@@ -160,8 +160,7 @@ function 将棋ウォーズ(){
 
     for(var i = 手数 - 2; i >= 0; i -= 2){
         if(csa[i].match(判定)){
-            return !Boolean(csa[i].match(成り駒)); //前回の位置が成り駒だとfalse
-
+            return csa[i].indexOf(成り駒) === -1; //前回の位置が成り駒だとfalse
         }
     }
     return true;
@@ -188,7 +187,7 @@ function 将棋ウォーズ(){
 将棋ウォーズ.棋譜ID→ファイル名 = function (棋譜ID){
     var id = 棋譜ID.split('-');
     return id[2] + "-" + id[0] + "-" + id[1] + ".kif";
-}
+};
 
 
 

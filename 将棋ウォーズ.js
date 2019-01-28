@@ -19,9 +19,9 @@ function 将棋ウォーズ(){
     for(var k in gtype){
         将棋ウォーズ.現在のモード = k;
         フォルダ作成(将棋ウォーズ.ID + '/' + k)
-        将棋ウォーズ.ダウンロード済み棋譜一覧 = ファイル一覧(将棋ウォーズ.ID + '/' + k);
+        将棋ウォーズ.ダウンロード済み棋譜 = ファイル一覧(将棋ウォーズ.ID + '/' + k);
 
-        将棋ウォーズ.棋譜一覧ページ解析("https://shogiwars.heroz.jp/games/history?gtype=" + gtype[k] + "&user_id=" + 将棋ウォーズ.ID);
+        将棋ウォーズ.一覧ページ解析("https://shogiwars.heroz.jp/games/history?gtype=" + gtype[k] + "&user_id=" + 将棋ウォーズ.ID);
     }
 
     将棋ウォーズ.終了(将棋ウォーズ.取得件数 + "件のファイルを取得しました")
@@ -29,21 +29,21 @@ function 将棋ウォーズ(){
 
 
 
-将棋ウォーズ.棋譜一覧ページ解析 = function(url){
+将棋ウォーズ.一覧ページ解析 = function(url){
     var document = IE移動(url);
     var a        = document.querySelectorAll("a");
 
     for(var i = 0; i < a.length; i++){
        if(a[i].textContent === '\u898B\u308B'){ //見る
             var 棋譜ID = (a[i].onclick)  ?  String(a[i].onclick).match(/'(.+?)'/)[1]  :  String(a[i].href).match(/games\/([\w\-]+)/)[1]; // 自分 or 他人
-            if(将棋ウォーズ.ダウンロード済み棋譜一覧.indexOf(将棋ウォーズ.棋譜IDをファイル名に変換(棋譜ID)) === -1){
+            if(将棋ウォーズ.ダウンロード済み棋譜.indexOf(将棋ウォーズ.棋譜ID→ファイル名(棋譜ID)) === -1){
                 将棋ウォーズ.棋譜ページ解析(棋譜ID);
                 将棋ウォーズ.取得件数++;
                 var 取得済 = true;
             }
         }
         else if(a[i].textContent === '\u6B21' && 取得済){ //次
-            将棋ウォーズ.棋譜一覧ページ解析(a[i].href);
+            将棋ウォーズ.一覧ページ解析(a[i].href);
             break;
         }
     }
@@ -73,14 +73,14 @@ function 将棋ウォーズ(){
 
 将棋ウォーズ.棋譜ファイル保存 = function(解析結果){
     var kif = "";
-    kif += "開始日時：" + 将棋ウォーズ.棋譜IDを時間に変換(解析結果.棋譜ID) + "\r\n";
+    kif += "開始日時：" + 将棋ウォーズ.棋譜ID→時間(解析結果.棋譜ID) + "\r\n";
     kif += "先手：" + 解析結果.先手名前 + " "+ 解析結果.先手段級 + "\r\n";
     kif += "後手：" + 解析結果.後手名前 + " "+ 解析結果.後手段級 + "\r\n";
     kif += "棋戦：将棋ウォーズ " + 将棋ウォーズ.現在のモード + "\r\n";
     kif += "場所：https://kif-pona.heroz.jp/games/" + 解析結果.棋譜ID + "\r\n";
     kif +=  将棋ウォーズ.KIF変換(解析結果.棋譜);
 
-    var パス = 将棋ウォーズ.ID + '/' + 将棋ウォーズ.現在のモード + '/' + 将棋ウォーズ.棋譜IDをファイル名に変換(解析結果.棋譜ID);
+    var パス = 将棋ウォーズ.ID + '/' + 将棋ウォーズ.現在のモード + '/' + 将棋ウォーズ.棋譜ID→ファイル名(解析結果.棋譜ID);
     ファイル保存(パス, kif, "Shift_JIS");
 };
 
@@ -187,14 +187,14 @@ function 将棋ウォーズ(){
 };
 
 
-将棋ウォーズ.棋譜IDをファイル名に変換 = function (棋譜ID){
+将棋ウォーズ.棋譜ID→ファイル名 = function (棋譜ID){
     var id = 棋譜ID.split('-');
     return id[2] + "-" + id[0] + "-" + id[1] + ".kif";
 }
 
 
 
-将棋ウォーズ.棋譜IDを時間に変換 = function (棋譜ID){
+将棋ウォーズ.棋譜ID→時間 = function (棋譜ID){
     var id = 棋譜ID.split('-');
 
     var 年 = id[2].substr(0, 4);

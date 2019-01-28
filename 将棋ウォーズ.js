@@ -30,7 +30,6 @@ function 将棋ウォーズ(){
 
 
 将棋ウォーズ.棋譜一覧ページ解析 = function(url){
-    var 解析結果 = [];
     var document = IE移動(url);
     var a        = document.querySelectorAll("a");
 
@@ -38,18 +37,15 @@ function 将棋ウォーズ(){
        if(a[i].textContent === '\u898B\u308B'){ //見る
             var 棋譜ID = (a[i].onclick)  ?  String(a[i].onclick).match(/'(.+?)'/)[1]  :  String(a[i].href).match(/games\/([\w\-]+)/)[1]; // 自分 or 他人
             if(将棋ウォーズ.ダウンロード済み棋譜一覧.indexOf(将棋ウォーズ.棋譜IDをファイル名に変換(棋譜ID)) === -1){
-                解析結果.push(棋譜ID);
                 将棋ウォーズ.棋譜ページ解析(棋譜ID);
+                将棋ウォーズ.取得件数++;
+                var 取得済 = true;
             }
         }
-        else if(a[i].textContent === '\u6B21'){ //次
-            解析結果.次のページ = a[i].href;
+        else if(a[i].textContent === '\u6B21' && 取得済){ //次
+            将棋ウォーズ.棋譜一覧ページ解析(a[i].href);
             break;
         }
-    }
-
-    if(解析結果.次のページ && 解析結果.length){
-        将棋ウォーズ.棋譜一覧ページ解析(解析結果.次のページ);
     }
 };
 
@@ -70,7 +66,6 @@ function 将棋ウォーズ(){
 
     if(解析結果.棋譜){
         将棋ウォーズ.棋譜ファイル保存(解析結果);
-        将棋ウォーズ.取得件数++;
     }
 };
 

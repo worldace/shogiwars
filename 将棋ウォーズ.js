@@ -12,11 +12,13 @@ function 将棋ウォーズ(){
         将棋ウォーズ.終了("id.txtに将棋ウォーズのIDを記述してください")
     }
 
+    将棋ウォーズ.フォルダ作成();
+
     var gtype = [{mode: '10分', name: ''}, {mode: '3分', name: 'sb'}, {mode: '10秒', name: 's1'}];
 
     for(var i = 0; i < gtype.length; i++){
         将棋ウォーズ.現在のモード = gtype[i].mode;
-        将棋ウォーズ.ダウンロード済み棋譜一覧 = ファイル一覧(gtype[i].mode, "base");
+        将棋ウォーズ.ダウンロード済み棋譜一覧 = ファイル一覧(将棋ウォーズ.ユーザID + '/' + gtype[i].mode, "base");
 
         将棋ウォーズ.棋譜一覧ページ解析("https://shogiwars.heroz.jp/games/history?gtype=" + gtype[i].name + "&user_id=" + 将棋ウォーズ.ユーザID);
     }
@@ -75,6 +77,25 @@ function 将棋ウォーズ(){
 
 
 
+将棋ウォーズ.フォルダ作成 = function(){
+    var fs = new ActiveXObject("Scripting.FileSystemObject");
+    
+    if(!fs.FolderExists(将棋ウォーズ.ユーザID)){
+        fs.CreateFolder(将棋ウォーズ.ユーザID);
+    }
+    if(!fs.FolderExists(将棋ウォーズ.ユーザID + '/10分')){
+        fs.CreateFolder(将棋ウォーズ.ユーザID + '/10分');
+    }
+    if(!fs.FolderExists(将棋ウォーズ.ユーザID + '/3分')){
+        fs.CreateFolder(将棋ウォーズ.ユーザID + '/3分');
+    }
+    if(!fs.FolderExists(将棋ウォーズ.ユーザID + '/10秒')){
+        fs.CreateFolder(将棋ウォーズ.ユーザID + '/10秒');
+    }
+};
+
+
+
 将棋ウォーズ.棋譜ファイル保存 = function(解析結果){
     var kif = "";
     kif += "開始日時：" + 将棋ウォーズ.棋譜IDを時間に変換(解析結果.棋譜ID) + "\r\n";
@@ -84,7 +105,7 @@ function 将棋ウォーズ(){
     kif += "場所：https://kif-pona.heroz.jp/games/" + 解析結果.棋譜ID + "\r\n";
     kif +=  将棋ウォーズ.KIF変換(解析結果.棋譜);
 
-    var パス = 将棋ウォーズ.現在のモード + '/' + 将棋ウォーズ.棋譜IDをファイル名に変換(解析結果.棋譜ID) + '.kif';
+    var パス = 将棋ウォーズ.ユーザID + '/' + 将棋ウォーズ.現在のモード + '/' + 将棋ウォーズ.棋譜IDをファイル名に変換(解析結果.棋譜ID) + '.kif';
     ファイル保存(パス, kif, "Shift_JIS");
 };
 

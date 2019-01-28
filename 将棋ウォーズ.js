@@ -3,8 +3,6 @@
 
 
 function 将棋ウォーズ(){
-    多重起動防止();
-
     将棋ウォーズ.ID = ファイル取得("id.txt").replace(/^\s+|\s+$/g, "");
     if(!将棋ウォーズ.ID){
         将棋ウォーズ.終了("id.txtに将棋ウォーズのIDを記述してください")
@@ -24,7 +22,7 @@ function 将棋ウォーズ(){
         将棋ウォーズ.一覧ページ解析("https://shogiwars.heroz.jp/games/history?gtype=" + gtype[k] + "&user_id=" + 将棋ウォーズ.ID);
     }
 
-    将棋ウォーズ.終了(将棋ウォーズ.取得件数 + "件のファイルを取得しました")
+    将棋ウォーズ.終了(将棋ウォーズ.取得件数 + "件の棋譜を取得しました")
 }
 
 
@@ -65,13 +63,13 @@ function 将棋ウォーズ(){
     };
 
     if(解析結果.棋譜){
-        将棋ウォーズ.棋譜ファイル保存(解析結果);
+        将棋ウォーズ.KIF保存(解析結果);
     }
 };
 
 
 
-将棋ウォーズ.棋譜ファイル保存 = function(解析結果){
+将棋ウォーズ.KIF保存 = function(解析結果){
     var kif = "";
     kif += "開始日時：" + 将棋ウォーズ.棋譜ID→時間(解析結果.棋譜ID) + "\r\n";
     kif += "先手：" + 解析結果.先手名前 + " "+ 解析結果.先手段級 + "\r\n";
@@ -158,12 +156,12 @@ function 将棋ウォーズ(){
 
 
 将棋ウォーズ.KIF変換.成り判定 = function (csa, 手数, 手番, 成り駒, 前X, 前Y){
-    //前回の位置が成り駒であるとfalse
     var 判定 = new RegExp('^\\' + 手番 + '\\d\\d' + 前X + 前Y);
 
     for(var i = 手数 - 2; i >= 0; i -= 2){
         if(csa[i].match(判定)){
-            return !Boolean(csa[i].match(成り駒));
+            return !Boolean(csa[i].match(成り駒)); //前回の位置が成り駒だとfalse
+
         }
     }
     return true;
@@ -335,6 +333,8 @@ Array.prototype.indexOf = function(obj, start){
 };
 
 
+
+多重起動防止();
 var IE = new ActiveXObject("InternetExplorer.Application");
 IE.visible = false;
 将棋ウォーズ();

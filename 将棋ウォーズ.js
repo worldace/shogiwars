@@ -14,14 +14,14 @@ function 将棋ウォーズ(){
 
     フォルダ作成(将棋ウォーズ.ユーザID);
 
-    var gtype = [{mode: '10分', name: ''}, {mode: '3分', name: 'sb'}, {mode: '10秒', name: 's1'}];
+    var gtype = {'10分':'', '3分':'sb', '10秒':'s1'};
 
-    for(var i = 0; i < gtype.length; i++){
-        将棋ウォーズ.現在のモード = gtype[i].mode;
-        フォルダ作成(将棋ウォーズ.ユーザID + '/' + 将棋ウォーズ.現在のモード)
-        将棋ウォーズ.ダウンロード済み棋譜一覧 = ファイル一覧(将棋ウォーズ.ユーザID + '/' + 将棋ウォーズ.現在のモード, "base");
+    for(var key in gtype){
+        将棋ウォーズ.現在のモード = key;
+        フォルダ作成(将棋ウォーズ.ユーザID + '/' + key)
+        将棋ウォーズ.ダウンロード済み棋譜一覧 = ファイル一覧(将棋ウォーズ.ユーザID + '/' + key, "base");
 
-        将棋ウォーズ.棋譜一覧ページ解析("https://shogiwars.heroz.jp/games/history?gtype=" + gtype[i].name + "&user_id=" + 将棋ウォーズ.ユーザID);
+        将棋ウォーズ.棋譜一覧ページ解析("https://shogiwars.heroz.jp/games/history?gtype=" + gtype[key] + "&user_id=" + 将棋ウォーズ.ユーザID);
     }
 
     将棋ウォーズ.終了(将棋ウォーズ.取得件数 + "件のファイルを取得しました")

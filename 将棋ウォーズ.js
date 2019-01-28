@@ -3,6 +3,10 @@
 
 
 function 将棋ウォーズ(){
+    this.IE = new ActiveXObject("InternetExplorer.Application");
+    IE.visible = false;
+
+
     将棋ウォーズ.ID = ファイル取得("id.txt").replace(/^\s+|\s+$/g, "");
     if(!将棋ウォーズ.ID){
         将棋ウォーズ.終了("id.txtに将棋ウォーズのIDを記述してください")
@@ -33,7 +37,7 @@ function 将棋ウォーズ(){
 
     for(var i = 0; i < a.length; i++){
        if(a[i].textContent === '\u898B\u308B'){ //見る
-            var 棋譜ID = (a[i].onclick)  ?  String(a[i].onclick).match(/'(.+?)'/)[1]  :  String(a[i].href).match(/games\/([\w\-]+)/)[1]; // 自分 or 他人
+            var 棋譜ID = (a[i].onclick)  ?  String(a[i].onclick).match(/'(.+?)'/)[1]  :  a[i].href.match(/games\/([\w\-]+)/)[1]; // 自分 or 他人
             if(将棋ウォーズ.ダウンロード済み棋譜.indexOf(将棋ウォーズ.棋譜ID→ファイル名(棋譜ID)) === -1){
                 将棋ウォーズ.棋譜ページ解析(棋譜ID);
                 将棋ウォーズ.取得件数++;
@@ -334,8 +338,6 @@ Array.prototype.indexOf = function(obj, start){
 
 
 多重起動防止();
-var IE = new ActiveXObject("InternetExplorer.Application");
-IE.visible = false;
 将棋ウォーズ();
 
 

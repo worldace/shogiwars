@@ -4,24 +4,24 @@
 
 function 将棋ウォーズ(){
     多重起動防止();
-    WScript.Echo("棋譜のダウンロードを開始します");
 
-    将棋ウォーズ.取得件数 = 0;
-    将棋ウォーズ.ユーザID = ファイル取得("id.txt").replace("/\s/g", "");
-    if(!将棋ウォーズ.ユーザID){
+    将棋ウォーズ.ID  = ファイル取得("id.txt").replace(/^\s+|\s+$/g, "");
+    if(!将棋ウォーズ.ID){
         将棋ウォーズ.終了("id.txtに将棋ウォーズのIDを記述してください")
     }
 
-    フォルダ作成(将棋ウォーズ.ユーザID);
+    WScript.Echo(将棋ウォーズ.ID + "の棋譜をダウンロードします");
+    将棋ウォーズ.取得件数 = 0;
+    フォルダ作成(将棋ウォーズ.ID);
 
     var gtype = {'10分':'', '3分':'sb', '10秒':'s1'};
 
     for(var key in gtype){
         将棋ウォーズ.現在のモード = key;
-        フォルダ作成(将棋ウォーズ.ユーザID + '/' + key)
-        将棋ウォーズ.ダウンロード済み棋譜一覧 = ファイル一覧(将棋ウォーズ.ユーザID + '/' + key, "base");
+        フォルダ作成(将棋ウォーズ.ID + '/' + key)
+        将棋ウォーズ.ダウンロード済み棋譜一覧 = ファイル一覧(将棋ウォーズ.ID + '/' + key);
 
-        将棋ウォーズ.棋譜一覧ページ解析("https://shogiwars.heroz.jp/games/history?gtype=" + gtype[key] + "&user_id=" + 将棋ウォーズ.ユーザID);
+        将棋ウォーズ.棋譜一覧ページ解析("https://shogiwars.heroz.jp/games/history?gtype=" + gtype[key] + "&user_id=" + 将棋ウォーズ.ID);
     }
 
     将棋ウォーズ.終了(将棋ウォーズ.取得件数 + "件のファイルを取得しました")
@@ -30,9 +30,10 @@ function 将棋ウォーズ(){
 
 
 将棋ウォーズ.棋譜一覧ページ解析 = function(url){
+    var 解析結果   = [];
+
     var document   = IE移動(url);
     var a          = document.querySelectorAll("a");
-    var 解析結果   = [];
 
     for(var i = 0; i < a.length; i++){
        if(a[i].textContent === '\u898B\u308B'){ //見る
@@ -49,12 +50,9 @@ function 将棋ウォーズ(){
     }
 
     for(var i = 0; i < 解析結果.length; i++){
-        var 棋譜ページ解析結果 = 将棋ウォーズ.棋譜ページ解析(解析結果[i]);
-        if(棋譜ページ解析結果.棋譜){
-            将棋ウォーズ.棋譜ファイル保存(棋譜ページ解析結果);
-            将棋ウォーズ.取得件数++;
-        }
+        将棋ウォーズ.棋譜ページ解析(解析結果[i]);
     }
+
     if(解析結果.次のページ && 解析結果.length){
         将棋ウォーズ.棋譜一覧ページ解析(解析結果.次のページ);
     }
@@ -66,7 +64,7 @@ function 将棋ウォーズ(){
     var html   = HTTP_GET("https://kif-pona.heroz.jp/games/" + 棋譜ID);
     var ソース = html.substr(html.indexOf('gamedata'));
 
-    return {
+    var 解析結果 = {
         棋譜ID  : 棋譜ID,
         先手名前: 棋譜ID.split(/-/)[0],
         後手名前: 棋譜ID.split(/-/)[1],
@@ -74,6 +72,11 @@ function 将棋ウォーズ(){
         後手段級: ソース.match(/dan1: "(.+?)"/)[1],
         棋譜    : ソース.match(/receiveMove\("(.+?)"/)[1]
     };
+
+    if(解析結果.棋譜){
+        将棋ウォーズ.棋譜ファイル保存(解析結果);
+        将棋ウォーズ.取得件数++;
+    }
 };
 
 
@@ -87,7 +90,7 @@ function 将棋ウォーズ(){
     kif += "場所：https://kif-pona.heroz.jp/games/" + 解析結果.棋譜ID + "\r\n";
     kif +=  将棋ウォーズ.KIF変換(解析結果.棋譜);
 
-    var パス = 将棋ウォーズ.ユーザID + '/' + 将棋ウォーズ.現在のモード + '/' + 将棋ウォーズ.棋譜IDをファイル名に変換(解析結果.棋譜ID) + '.kif';
+    var パス = 将棋ウォーズ.ID + '/' + 将棋ウォーズ.現在のモード + '/' + 将棋ウォーズ.棋譜IDをファイル名に変換(解析結果.棋譜ID);
     ファイル保存(パス, kif, "Shift_JIS");
 };
 
@@ -165,13 +168,12 @@ function 将棋ウォーズ(){
 
 
 将棋ウォーズ.KIF変換.成り判定 = function (csa, 手数, 手番, 成り駒, 前X, 前Y){
-    //前回の位置が成り駒であるとfalse (それ以外はtrue)
-    //検索対象は現在の手数まで。自分の手番のみ
+    //前回の位置が成り駒であるとfalse
     var 判定 = new RegExp('^\\' + 手番 + '\\d\\d' + 前X + 前Y);
 
-    for(var i = 手数; i >= 0; i -= 2){
+    for(var i = 手数 - 2; i >= 0; i -= 2){
         if(csa[i].match(判定)){
-            return (csa[i].match(成り駒)) ? false : true;
+            return !Boolean(csa[i].match(成り駒));
         }
     }
     return true;
@@ -197,7 +199,7 @@ function 将棋ウォーズ(){
 
 将棋ウォーズ.棋譜IDをファイル名に変換 = function (棋譜ID){
     var id = 棋譜ID.split('-');
-    return id[2] + "-" + id[0] + "-" + id[1];
+    return id[2] + "-" + id[0] + "-" + id[1] + ".kif";
 }
 
 

@@ -39,16 +39,13 @@ function 将棋ウォーズ(){
             var 棋譜ID = (a[i].onclick)  ?  String(a[i].onclick).match(/'(.+?)'/)[1]  :  String(a[i].href).match(/games\/([\w\-]+)/)[1]; // 自分 or 他人
             if(将棋ウォーズ.ダウンロード済み棋譜一覧.indexOf(将棋ウォーズ.棋譜IDをファイル名に変換(棋譜ID)) === -1){
                 解析結果.push(棋譜ID);
+                将棋ウォーズ.棋譜ページ解析(棋譜ID);
             }
         }
         else if(a[i].textContent === '\u6B21'){ //次
             解析結果.次のページ = a[i].href;
             break;
         }
-    }
-
-    for(var i = 0; i < 解析結果.length; i++){
-        将棋ウォーズ.棋譜ページ解析(解析結果[i]);
     }
 
     if(解析結果.次のページ && 解析結果.length){

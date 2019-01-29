@@ -6,7 +6,6 @@ function 将棋ウォーズ(){
     this.IE = new ActiveXObject("InternetExplorer.Application");
     IE.visible = false;
 
-
     将棋ウォーズ.ID = ファイル取得("id.txt").replace(/^\s+|\s+$/g, "");
     if(!将棋ウォーズ.ID){
         将棋ウォーズ.終了("id.txtに将棋ウォーズのIDを記述してください")
@@ -196,14 +195,14 @@ function 将棋ウォーズ(){
 
 
 将棋ウォーズ.棋譜ID→時間 = function (棋譜ID){
-    var id = 棋譜ID.split('-');
+    var time = 棋譜ID.split('-')[2];
 
-    var 年 = id[2].substr(0, 4);
-    var 月 = id[2].substr(4, 2);
-    var 日 = id[2].substr(6, 2);
-    var 時 = id[2].substr(9, 2);
-    var 分 = id[2].substr(11, 2);
-    var 秒 = id[2].substr(13, 2);
+    var 年 = time.substr(0, 4);
+    var 月 = time.substr(4, 2);
+    var 日 = time.substr(6, 2);
+    var 時 = time.substr(9, 2);
+    var 分 = time.substr(11, 2);
+    var 秒 = time.substr(13, 2);
 
     return 年 + "/" + 月 + "/" + 日 + " " + 時 + ":" + 分 + ":" + 秒;
 };
@@ -256,16 +255,15 @@ function ファイル保存(file, contents, encode){
 
 
 
-function ファイル一覧(dir, type){
+function ファイル一覧(dir, mode){
     var result = [];
     var fs     = new ActiveXObject("Scripting.FileSystemObject");
-    var files  = fs.GetFolder(dir).Files;
 
-    for (var e = new Enumerator(files); !e.atEnd(); e.moveNext()){
-        if(type === 'base'){
+    for (var e = new Enumerator(fs.GetFolder(dir).Files); !e.atEnd(); e.moveNext()){
+        if(mode === 'base'){
             result.push(fs.GetBaseName(e.item()));
         }
-        else if(type === 'absolute'){
+        else if(mode === 'full'){
             result.push(e.item());
         }
         else{
@@ -277,11 +275,11 @@ function ファイル一覧(dir, type){
 
 
 
-function フォルダ作成(path){
+function フォルダ作成(dir){
     var fs = new ActiveXObject("Scripting.FileSystemObject");
 
-    if(!fs.FolderExists(path)){
-        fs.CreateFolder(path);
+    if(!fs.FolderExists(dir)){
+        fs.CreateFolder(dir);
     }
 }
 

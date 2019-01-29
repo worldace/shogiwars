@@ -195,16 +195,7 @@ function 将棋ウォーズ(){
 
 
 将棋ウォーズ.棋譜ID→時間 = function (棋譜ID){
-    var time = 棋譜ID.split('-')[2];
-
-    var 年 = time.substr(0, 4);
-    var 月 = time.substr(4, 2);
-    var 日 = time.substr(6, 2);
-    var 時 = time.substr(9, 2);
-    var 分 = time.substr(11, 2);
-    var 秒 = time.substr(13, 2);
-
-    return 年 + "/" + 月 + "/" + 日 + " " + 時 + ":" + 分 + ":" + 秒;
+    return 棋譜ID.split('-')[2].replace(/(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)/, "$1/$2/$3 $4:$5:$6");
 };
 
 

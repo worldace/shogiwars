@@ -11,13 +11,7 @@ function 将棋ウォーズ(){
     this.IE = new ActiveXObject("InternetExplorer.Application");
     IE.visible = false;
 
-    将棋ウォーズ.ID = prompt("将棋ウォーズのIDを入力してください", "将棋ウォーズ棋譜ダウンローダ", ファイル取得("id.txt"));
-    if(!将棋ウォーズ.ID){
-        将棋ウォーズ.終了();
-    }
-    将棋ウォーズ.ID = 将棋ウォーズ.ID.replace(/^\s+|\s+$/g, "")
-    ファイル保存("id.txt", 将棋ウォーズ.ID, "Shift_JIS");
-
+    将棋ウォーズ.ID = 将棋ウォーズ.ID入力();
     将棋ウォーズ.取得件数 = 0;
     フォルダ作成(将棋ウォーズ.ID);
 
@@ -33,6 +27,17 @@ function 将棋ウォーズ(){
 
     将棋ウォーズ.終了(将棋ウォーズ.取得件数 + "件の棋譜を取得しました")
 }
+
+
+
+将棋ウォーズ.ID入力 = function (){
+    var id = prompt("将棋ウォーズのIDを入力してください", "将棋ウォーズ棋譜ダウンローダ", ファイル取得("id.txt"));
+    if(!id || id.match(/\W/)){
+        将棋ウォーズ.終了();
+    }
+    ファイル保存("id.txt", id, "Shift_JIS");
+    return id;
+};
 
 
 

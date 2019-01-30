@@ -1,17 +1,23 @@
-/* ※このファイルはSJISで保存してください */
+<job>
+<script language="VBScript">
+function prompt(message, title, value)
+    prompt = InputBox(message, title, value)
+end function
+</script>
 
 
-
+<script language="JavaScript">
 function 将棋ウォーズ(){
     this.IE = new ActiveXObject("InternetExplorer.Application");
     IE.visible = false;
 
-    将棋ウォーズ.ID = ファイル取得("id.txt").replace(/^\s+|\s+$/g, "");
+    将棋ウォーズ.ID = prompt("将棋ウォーズのIDを入力してください", "将棋ウォーズ棋譜ダウンローダ", ファイル取得("id.txt"));
     if(!将棋ウォーズ.ID){
-        将棋ウォーズ.終了("id.txtに将棋ウォーズのIDを記述してください")
+        将棋ウォーズ.終了();
     }
+    将棋ウォーズ.ID = 将棋ウォーズ.ID.replace(/^\s+|\s+$/g, "")
+    ファイル保存("id.txt", 将棋ウォーズ.ID, "Shift_JIS");
 
-    WScript.Echo(将棋ウォーズ.ID + "の棋譜をダウンロードします");
     将棋ウォーズ.取得件数 = 0;
     フォルダ作成(将棋ウォーズ.ID);
 
@@ -39,7 +45,6 @@ function 将棋ウォーズ(){
             var 棋譜ID = (a[i].onclick)  ?  String(a[i].onclick).match(/'(.+?)'/)[1]  :  a[i].href.match(/games\/([\w\-]+)/)[1]; // 自分 or 他人
             if(将棋ウォーズ.ダウンロード済み棋譜.indexOf(将棋ウォーズ.棋譜ID→ファイル名(棋譜ID)) === -1){
                 将棋ウォーズ.棋譜ページ解析(棋譜ID);
-                将棋ウォーズ.取得件数++;
                 var 取得済 = true;
             }
         }
@@ -65,13 +70,14 @@ function 将棋ウォーズ(){
     var csa    = ソース.match(/receiveMove\("(.+?)"/)[1];
 
     将棋ウォーズ.KIF保存(棋譜ID, csa, 先手名, 後手名);
+    将棋ウォーズ.取得件数++;
 };
 
 
 
 将棋ウォーズ.KIF保存 = function(棋譜ID, csa, 先手名, 後手名){
     var kif = "";
-    kif += "開始日時：" + 将棋ウォーズ.棋譜ID→時間(棋譜ID) + "\r\n";
+    kif += "開始日時：" + 棋譜ID.split('-')[2].replace(/(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)/, "$1/$2/$3 $4:$5:$6") + "\r\n";
     kif += "先手：" + 先手名 + "\r\n";
     kif += "後手：" + 後手名 + "\r\n";
     kif += "棋戦：将棋ウォーズ " + 将棋ウォーズ.現在のモード + "\r\n";
@@ -191,15 +197,11 @@ function 将棋ウォーズ(){
 
 
 
-将棋ウォーズ.棋譜ID→時間 = function (棋譜ID){
-    return 棋譜ID.split('-')[2].replace(/(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)/, "$1/$2/$3 $4:$5:$6");
-};
-
-
-
 将棋ウォーズ.終了 = function(str){
+    if(str){
+        WScript.Echo(str);
+    }
     IE.Quit();
-    WScript.Echo(str);
     WScript.Quit();
 };
 
@@ -237,7 +239,7 @@ function ファイル保存(file, contents, encode){
     stream.charset = encode || 'utf-8';
     stream.Open();
     stream.WriteText(contents);
-    stream.SaveToFile(file, 1);
+    stream.SaveToFile(file, 2);
     stream.Close();
 }
 
@@ -330,3 +332,5 @@ Array.prototype.indexOf = function(obj, start){
 // ウォーズ仕様の参考ページ https://github.com/tosh1ki/shogiwars
 // CSA形式の参考ページ http://www2.computer-shogi.org/protocol/record_v22.html
 // KIF形式の参考ページ http://kakinoki.o.oo7.jp/kif_format.html
+</script>
+</job>

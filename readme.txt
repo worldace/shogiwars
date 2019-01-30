@@ -16,12 +16,10 @@ https://spelunker2.wordpress.com/2019/01/09/shogiwars/
 ■使い方
 
 
-1. 「id.txt」に将棋ウォーズIDを記述してください
-
-2. IEで将棋ウォーズにログインしてください。https://shogiwars.heroz.jp/web_app/standard/
+1. IEで将棋ウォーズにログインしてください。https://shogiwars.heroz.jp/web_app/standard/
    ログイン済みならこの作業は不要です
 
-3. 「将棋ウォーズ.js」を実行してください
+2. 「将棋ウォーズ.wsf」を実行してください
 
 
 棋譜はKIF形式で保存されます。

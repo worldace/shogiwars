@@ -32,8 +32,11 @@ function 将棋ウォーズ(){
 
 将棋ウォーズ.ID入力 = function (){
     var id = prompt("将棋ウォーズのIDを入力してください", "将棋ウォーズ棋譜ダウンローダ", ファイル取得("id.txt"));
-    if(!id || id.match(/\W/)){
+    if(!id){
         将棋ウォーズ.終了();
+    }
+    else if(id.match(/\W/)){
+        将棋ウォーズ.終了("エラー：IDに不正な文字が含まれています");
     }
     ファイル保存("id.txt", id, "Shift_JIS");
     return id;

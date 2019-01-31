@@ -23,4 +23,5 @@ https://spelunker2.wordpress.com/2019/01/09/shogiwars/
 
 
 棋譜はKIF形式で保存されます。
-将棋GUIなどの将棋ソフトで開けます。http://shogigui.siganus.com/
+将棋GUIなどのソフトで開けます。http://shogigui.siganus.com/
+姉妹ソフトの将棋タイムならWeb上で公開できます。https://spelunker2.wordpress.com/2018/09/20/shogitime/

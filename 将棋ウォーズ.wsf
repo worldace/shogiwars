@@ -218,16 +218,10 @@ function 将棋ウォーズ(){
 function IE移動(url){
     IE.navigate(url);
     for(var i = 0; i < 300; i++){
-        if(!IE.Busy && IE.readystate === 4){
+        if(!IE.Busy && IE.readyState === 4){
             break;
         }
         WScript.Sleep(100);
-    }
-
-    if(i === 300){
-        IE.Quit();
-        WScript.Echo("接続できませんでした");
-        WScript.Quit();
     }
     return IE.document;
 }

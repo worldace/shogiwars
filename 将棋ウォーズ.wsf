@@ -19,7 +19,7 @@ function 将棋ウォーズ(){
 
     for(var k in gtype){
         将棋ウォーズ.現在のモード = k;
-        フォルダ作成(将棋ウォーズ.ID + '/' + k)
+        フォルダ作成(将棋ウォーズ.ID + '/' + k);
         将棋ウォーズ.ダウンロード済み棋譜 = ファイル一覧(将棋ウォーズ.ID + '/' + k);
 
         将棋ウォーズ.一覧ページ解析("https://shogiwars.heroz.jp/games/history?gtype=" + gtype[k] + "&user_id=" + 将棋ウォーズ.ID);
@@ -215,14 +215,19 @@ function 将棋ウォーズ(){
 
 
 
-function IE移動(url){ /* エラー時の対策が分からない */
+function IE移動(url){
     IE.navigate(url);
     for(var i = 0; i < 300; i++){
-        if(IE.Busy || IE.readystate !== 4){
-            WScript.Sleep(100);
-            continue;
+        if(!IE.Busy && IE.readystate === 4){
+            break;
         }
-        break;
+        WScript.Sleep(100);
+    }
+
+    if(i === 300){
+        IE.Quit();
+        WScript.Echo("接続できませんでした");
+        WScript.Quit();
     }
     return IE.document;
 }

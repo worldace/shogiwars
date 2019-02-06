@@ -31,7 +31,7 @@ function 将棋ウォーズ(){
 
 
 将棋ウォーズ.ID入力 = function (){
-    var id = prompt("将棋ウォーズのIDを入力してください", "将棋ウォーズ棋譜ダウンローダ", ファイル取得("id.txt"));
+    var id = prompt("IEでウォーズにログインしてから\n将棋ウォーズのIDを入力してください", "将棋ウォーズ棋譜ダウンローダ", ファイル取得("id.txt"));
     if(!id){
         将棋ウォーズ.終了();
     }
@@ -140,7 +140,7 @@ function 将棋ウォーズ(){
             kif += (前X == 0) ? '打' : ('(' + 前X + 前Y + ')');
 
             //時間
-            var 時間 = Number(時間.substr(1));
+            時間 = Number(時間.substr(1));
             if(手番 === "+"){
                 var 消費時間  = 先手残り時間 - 時間;
                 先手累積時間 += 消費時間;
@@ -283,7 +283,7 @@ function フォルダ作成(dir){
 
 
 function HTTP_GET(url){
-    var http = new ActiveXObject('Msxml2.ServerXMLHTTP');
+    var http = new ActiveXObject('Msxml2.ServerXMLHTTP'); // https://qiita.com/tnakagawa/items/3bce99d49b1aa3fc9a72
     http.open('GET', url, false);
     http.send();
     return http.responseText;

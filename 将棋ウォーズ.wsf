@@ -8,7 +8,7 @@ end function
 
 <script language="JavaScript">
 function 将棋ウォーズ(){
-    this.IE = new ActiveXObject("InternetExplorer.Application");
+    this.IE = WScript.CreateObject("InternetExplorer.Application");
 
     将棋ウォーズ.ID = 将棋ウォーズ.ID入力();
     ファイル保存("id.txt", 将棋ウォーズ.ID, "Shift_JIS");
@@ -229,7 +229,7 @@ function IE移動(url){
 
 
 function ファイル開く(file, encode){
-    var stream = new ActiveXObject('ADODB.Stream');
+    var stream = WScript.CreateObject('ADODB.Stream');
     stream.charset = encode || 'utf-8';
     stream.Open();
     stream.loadFromFile(file);
@@ -242,7 +242,7 @@ function ファイル開く(file, encode){
 
 
 function ファイル保存(file, contents, encode){
-    var stream = new ActiveXObject('ADODB.Stream');
+    var stream = WScript.CreateObject('ADODB.Stream');
     stream.charset = encode || 'utf-8';
     stream.Open();
     stream.WriteText(contents);
@@ -254,7 +254,7 @@ function ファイル保存(file, contents, encode){
 
 function ファイル一覧(dir, mode){
     var result = [];
-    var fs     = new ActiveXObject("Scripting.FileSystemObject");
+    var fs     = WScript.CreateObject("Scripting.FileSystemObject");
 
     for (var e = new Enumerator(fs.GetFolder(dir).Files); !e.atEnd(); e.moveNext()){
         if(mode === 'base'){
@@ -273,7 +273,7 @@ function ファイル一覧(dir, mode){
 
 
 function フォルダ作成(dir){
-    var fs = new ActiveXObject("Scripting.FileSystemObject");
+    var fs = WScript.CreateObject("Scripting.FileSystemObject");
 
     if(!fs.FolderExists(dir)){
         fs.CreateFolder(dir);
@@ -283,7 +283,7 @@ function フォルダ作成(dir){
 
 
 function HTTP_GET(url){
-    var http = new ActiveXObject('Msxml2.ServerXMLHTTP'); // https://qiita.com/tnakagawa/items/3bce99d49b1aa3fc9a72
+    var http = WScript.CreateObject('Msxml2.ServerXMLHTTP'); // https://qiita.com/tnakagawa/items/3bce99d49b1aa3fc9a72
     http.open('GET', url, false);
     http.send();
     return http.responseText;

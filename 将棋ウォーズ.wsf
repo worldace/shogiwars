@@ -292,21 +292,21 @@ function HTTP_GET(url){
 
 
 function 多重起動防止(){ // https://gist.github.com/ka-ka-xyz/2718628
-    var wscript = (WScript.CreateObject("Scripting.FileSystemObject").GetSpecialFolder(0) + "\\System32\\WScript.exe").toLowerCase();
+    var wscript = (WScript.CreateObject("Scripting.FileSystemObject").GetSpecialFolder(1) + "\\WScript.exe").toLowerCase();
     var jscript = WScript.ScriptFullName.toLowerCase();
     var process = GetObject("WinMgmts:Root\\Cimv2").ExecQuery("Select * From Win32_Process");
     var count   = 0;
 
     for(var e = new Enumerator(process); !e.atEnd(); e.moveNext()){
         var cmd = String(e.item().CommandLine).toLowerCase();
-        if(cmd.indexOf(wscript) === -1 || cmd.indexOf(jscript) === -1){
-            continue;
+        if(cmd.indexOf(wscript) > -1 && cmd.indexOf(jscript) > -1){
+            count++;
         }
-        count++;
-        if(count > 1){
-            WScript.Echo(jscript + "は既に起動しています。");
-            WScript.Quit();
-        }
+    }
+
+    if(count > 1){
+        WScript.Echo(jscript + "は既に起動しています");
+        WScript.Quit();
     }
 }
 

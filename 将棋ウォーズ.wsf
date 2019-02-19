@@ -9,20 +9,21 @@ end function
 <script language="JavaScript">
 function 将棋ウォーズ(){
     this.IE = new ActiveXObject("InternetExplorer.Application");
-    IE.visible = false;
 
     将棋ウォーズ.ID = 将棋ウォーズ.ID入力();
-    将棋ウォーズ.取得件数 = 0;
+    ファイル保存("id.txt", 将棋ウォーズ.ID, "Shift_JIS");
     フォルダ作成(将棋ウォーズ.ID);
+
+    将棋ウォーズ.取得件数 = 0;
 
     var gtype = {'10分':'', '3分':'sb', '10秒':'s1'};
 
-    for(var k in gtype){
-        将棋ウォーズ.現在のモード = k;
-        フォルダ作成(将棋ウォーズ.ID + '/' + k);
-        将棋ウォーズ.ダウンロード済み棋譜 = ファイル一覧(将棋ウォーズ.ID + '/' + k);
+    for(var key in gtype){
+        将棋ウォーズ.現在のモード = key;
+        フォルダ作成(将棋ウォーズ.ID + '/' + key);
+        将棋ウォーズ.ダウンロード済み棋譜 = ファイル一覧(将棋ウォーズ.ID + '/' + key);
 
-        将棋ウォーズ.一覧ページ解析("https://shogiwars.heroz.jp/games/history?gtype=" + gtype[k] + "&user_id=" + 将棋ウォーズ.ID);
+        将棋ウォーズ.一覧ページ解析("https://shogiwars.heroz.jp/games/history?gtype=" + gtype[key] + "&user_id=" + 将棋ウォーズ.ID);
     }
 
     将棋ウォーズ.終了(将棋ウォーズ.取得件数 + "件の棋譜を取得しました")
@@ -31,14 +32,13 @@ function 将棋ウォーズ(){
 
 
 将棋ウォーズ.ID入力 = function (){
-    var id = prompt("IEでウォーズにログインしてから\n将棋ウォーズのIDを入力してください", "将棋ウォーズ棋譜ダウンローダ", ファイル取得("id.txt"));
+    var id = prompt("IEでウォーズにログインしてから\n将棋ウォーズのIDを入力してください", "将棋ウォーズ棋譜ダウンローダ", ファイル開く("id.txt"));
     if(!id){
         将棋ウォーズ.終了();
     }
     else if(id.match(/\W/)){
         将棋ウォーズ.終了("エラー：IDに不正な文字が含まれています");
     }
-    ファイル保存("id.txt", id, "Shift_JIS");
     return id;
 };
 
@@ -49,7 +49,7 @@ function 将棋ウォーズ(){
     var a        = document.querySelectorAll("a");
 
     for(var i = 0; i < a.length; i++){
-       if(a[i].textContent === '\u898B\u308B'){ //見る
+        if(a[i].textContent === '\u898B\u308B'){ //見る
             var 棋譜ID = (a[i].onclick)  ?  String(a[i].onclick).match(/'(.+?)'/)[1]  :  a[i].href.match(/games\/([\w\-]+)/)[1]; // 自分 or 他人
             if(将棋ウォーズ.ダウンロード済み棋譜.indexOf(将棋ウォーズ.棋譜ID→ファイル名(棋譜ID)) === -1){
                 将棋ウォーズ.棋譜ページ解析(棋譜ID);
@@ -77,20 +77,20 @@ function 将棋ウォーズ(){
     var 後手名 = 棋譜ID.split(/-/)[1] + ' ' + (ソース.match(/dan1: "(.+?)"/)[1] || '');
     var csa    = ソース.match(/receiveMove\("(.+?)"/)[1];
 
-    将棋ウォーズ.KIF保存(棋譜ID, csa, 先手名, 後手名);
+    将棋ウォーズ.KIF保存(棋譜ID, 先手名, 後手名, 将棋ウォーズ.KIF変換(csa));
     将棋ウォーズ.取得件数++;
 };
 
 
 
-将棋ウォーズ.KIF保存 = function(棋譜ID, csa, 先手名, 後手名){
+将棋ウォーズ.KIF保存 = function(棋譜ID, 先手名, 後手名, kif指し手){
     var kif = "";
     kif += "開始日時：" + 棋譜ID.split('-')[2].replace(/(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)/, "$1/$2/$3 $4:$5:$6") + "\r\n";
     kif += "先手：" + 先手名 + "\r\n";
     kif += "後手：" + 後手名 + "\r\n";
     kif += "棋戦：将棋ウォーズ " + 将棋ウォーズ.現在のモード + "\r\n";
     kif += "場所：https://kif-pona.heroz.jp/games/" + 棋譜ID + "\r\n";
-    kif +=  将棋ウォーズ.KIF変換(csa);
+    kif +=  kif指し手;
 
     var パス = 将棋ウォーズ.ID + '/' + 将棋ウォーズ.現在のモード + '/' + 将棋ウォーズ.棋譜ID→ファイル名(棋譜ID);
     ファイル保存(パス, kif, "Shift_JIS");
@@ -228,7 +228,7 @@ function IE移動(url){
 
 
 
-function ファイル取得(file, encode){
+function ファイル開く(file, encode){
     var stream = new ActiveXObject('ADODB.Stream');
     stream.charset = encode || 'utf-8';
     stream.Open();
@@ -292,31 +292,22 @@ function HTTP_GET(url){
 
 
 function 多重起動防止(){ // https://gist.github.com/ka-ka-xyz/2718628
-    var env = WScript.CreateObject("WScript.Shell").Environment("Process");
-    var windir = env("SystemRoot");
-    var wmiObj = GetObject("WinMgmts:Root\\Cimv2");
-    var processes = wmiObj.ExecQuery("Select * From Win32_Process");
-    var processenum = new Enumerator(processes);
-    var flag = 0;
-    var pid;
+    var wscript = WScript.CreateObject("Scripting.FileSystemObject").GetSpecialFolder(0) + "\\System32\\WScript.exe";
+    var jscript = WScript.ScriptFullName;
+    var process = GetObject("WinMgmts:Root\\Cimv2").ExecQuery("Select * From Win32_Process");
+    var count   = 0;
 
-    for(; !processenum.atEnd(); processenum.moveNext()){
-        var item = processenum.item();
-        if(item.CommandLine != null && item.CommandLine.toLowerCase().indexOf("\"" +  windir.toLowerCase() + "\\system32\\wscript.exe") == 0 && item.CommandLine.indexOf(WScript.ScriptFullName) > 0 ){
-            flag++;
-            pid = item.ProcessId;
+    for(var e = new Enumerator(process); !e.atEnd(); e.moveNext()){
+        var cmd = e.item().CommandLine;
+        if(cmd == null || cmd.indexOf(wscript) === -1 || cmd.indexOf(jscript) === -1){
+            continue;
+        }
+        count++;
+        if(count > 1){
+            WScript.Echo(jscript + "は既に起動しています。");
+            WScript.Quit();
         }
     }
-  
-    if(flag > 1){
-        WScript.Echo(WScript.ScriptName + "は既に起動されています。");
-        WScript.Quit(0);
-    }
-    else if(typeof pid === "undefined"){
-        WScript.Echo("多重起動判定に失敗しました。");
-        WScript.Quit(0);
-    }
-    return pid;
 }
 
 

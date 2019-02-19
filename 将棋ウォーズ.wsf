@@ -296,7 +296,7 @@ function ‘½d‹N“®–h~(){
     var count   = 0;
 
     for(var e = new Enumerator(process); !e.atEnd(); e.moveNext()){
-        if(e.item().ExecutablePath === WScript.FullName && e.item().CommandLine.indexOf(WScript.ScriptFullName) > -1){
+        if(e.item().ExecutablePath === WScript.FullName && String(e.item().CommandLine).indexOf(WScript.ScriptFullName) > -1){
             count++;
         }
     }

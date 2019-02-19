@@ -291,12 +291,12 @@ function HTTP_GET(url){
 
 
 
-function ‘½d‹N“®–h~(){ // https://gist.github.com/ka-ka-xyz/2718628
+function ‘½d‹N“®–h~(){
     var process = GetObject("WinMgmts:Root\\Cimv2").ExecQuery("Select * From Win32_Process");
     var count   = 0;
 
     for(var e = new Enumerator(process); !e.atEnd(); e.moveNext()){
-        if(e.item().Name === "wscript.exe" && e.item().CommandLine.indexOf(WScript.ScriptFullName) > -1){
+        if(e.item().ExecutablePath === WScript.FullName && e.item().CommandLine.indexOf(WScript.ScriptFullName) > -1){
             count++;
         }
     }

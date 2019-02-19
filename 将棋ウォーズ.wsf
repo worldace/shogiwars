@@ -302,7 +302,7 @@ function ‘½d‹N“®–hŽ~(){
     }
 
     if(count > 1){
-        WScript.Echo(WScript.ScriptFullName + " ‚ÍŠù‚É‹N“®‚µ‚Ä‚¢‚Ü‚·");
+        WScript.Echo(WScript.ScriptName + " ‚ÍŠù‚É‹N“®‚µ‚Ä‚¢‚Ü‚·");
         WScript.Quit();
     }
 }

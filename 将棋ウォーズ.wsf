@@ -11,7 +11,7 @@ function 将棋ウォーズ(){
     this.IE = WScript.CreateObject("InternetExplorer.Application");
 
     将棋ウォーズ.ID = 将棋ウォーズ.ID入力();
-    ファイル保存("id.txt", 将棋ウォーズ.ID, "Shift_JIS");
+    ファイル保存("id.txt", 将棋ウォーズ.ID);
     フォルダ作成(将棋ウォーズ.ID);
 
     将棋ウォーズ.取得件数 = 0;
@@ -32,7 +32,7 @@ function 将棋ウォーズ(){
 
 
 将棋ウォーズ.ID入力 = function (){
-    var id = prompt("IEでウォーズにログインしてから\n将棋ウォーズのIDを入力してください", "将棋ウォーズ棋譜ダウンローダ", ファイル開く("id.txt"));
+    var id = prompt("IEで将棋ウォーズにログインしてから\n将棋ウォーズのIDを入力してください", "将棋ウォーズ棋譜ダウンローダ", ファイル開く("id.txt"));
     if(!id){
         将棋ウォーズ.終了();
     }
@@ -93,7 +93,7 @@ function 将棋ウォーズ(){
     kif +=  kif指し手;
 
     var パス = 将棋ウォーズ.ID + '/' + 将棋ウォーズ.現在のモード + '/' + 将棋ウォーズ.棋譜ID→ファイル名(棋譜ID);
-    ファイル保存(パス, kif, "Shift_JIS");
+    ファイル保存(パス, kif);
 };
 
 
@@ -230,7 +230,7 @@ function IE移動(url){
 
 function ファイル開く(file, encode){
     var stream = WScript.CreateObject('ADODB.Stream');
-    stream.charset = encode || 'utf-8';
+    stream.charset = encode || "Shift_JIS";
     stream.Open();
     stream.loadFromFile(file);
     var contents = stream.ReadText();
@@ -243,7 +243,7 @@ function ファイル開く(file, encode){
 
 function ファイル保存(file, contents, encode){
     var stream = WScript.CreateObject('ADODB.Stream');
-    stream.charset = encode || 'utf-8';
+    stream.charset = encode || "Shift_JIS";
     stream.Open();
     stream.WriteText(contents);
     stream.SaveToFile(file, 2);

@@ -44,7 +44,7 @@ function 将棋ウォーズ(){
 
 
 将棋ウォーズ.一覧ページ解析 = function(url){
-    var document = IE移動(url);
+    var document = IE(url);
     var a        = document.querySelectorAll("a");
 
     for(var i = 0; i < a.length; i++){
@@ -208,26 +208,26 @@ function 将棋ウォーズ(){
     if(str){
         WScript.Echo(str);
     }
-    if(this.IE){
-        IE.Quit();
+    if(IE.browser){
+        IE.browser.Quit();
     }
     WScript.Quit();
 };
 
 
 
-function IE移動(url){
-    if(!this.IE){
-        this.IE = WScript.CreateObject("InternetExplorer.Application");
+function IE(url){
+    if(!IE.browser){
+        IE.browser = WScript.CreateObject("InternetExplorer.Application");
     }
-    IE.navigate(url);
+    IE.browser.navigate(url);
     for(var i = 0; i < 300; i++){
-        if(!IE.Busy && IE.readyState === 4){
+        if(!IE.browser.Busy && IE.browser.readyState === 4){
             break;
         }
         WScript.Sleep(100);
     }
-    return IE.document;
+    return IE.browser.document;
 }
 
 

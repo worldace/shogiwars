@@ -7,9 +7,8 @@ end function
 
 
 <script language="JavaScript">
-function 将棋ウォーズ(){
-    this.IE = WScript.CreateObject("InternetExplorer.Application");
 
+function 将棋ウォーズ(){
     将棋ウォーズ.ID = 将棋ウォーズ.ID入力();
     ファイル保存("id.txt", 将棋ウォーズ.ID);
     フォルダ作成(将棋ウォーズ.ID);
@@ -209,13 +208,18 @@ function 将棋ウォーズ(){
     if(str){
         WScript.Echo(str);
     }
-    IE.Quit();
+    if(this.IE){
+        IE.Quit();
+    }
     WScript.Quit();
 };
 
 
 
 function IE移動(url){
+    if(!this.IE){
+        this.IE = WScript.CreateObject("InternetExplorer.Application");
+    }
     IE.navigate(url);
     for(var i = 0; i < 300; i++){
         if(!IE.Busy && IE.readyState === 4){
@@ -292,7 +296,7 @@ function HTTP_GET(url){
 
 
 function 多重起動防止(){
-    var process = GetObject("WinMgmts:Root\\Cimv2").ExecQuery("Select * From Win32_Process");
+    var process = GetObject("WinMgmts:").ExecQuery("Select * From Win32_Process");
     var count   = 0;
 
     for(var e = new Enumerator(process); !e.atEnd(); e.moveNext()){

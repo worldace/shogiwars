@@ -104,7 +104,7 @@ function 将棋ウォーズ(){
     var 成り駒 = ['TO', 'NY', 'NK', 'NG', 'UM', 'RY'];
     var 全数字 = {1:'１', 2:'２', 3:'３', 4:'４', 5:'５', 6:'６', 7:'７', 8:'８', 9:'９'};
     var 漢数字 = {1:'一', 2:'二', 3:'三', 4:'四', 5:'五', 6:'六', 7:'七', 8:'八', 9:'九'};
-    var 終局   = {CHECKMATE:'詰み', TORYO:'投了', DISCONNECT:'反則負け', TIMEOUT:'切れ負け', OUTE_SENNICHI:'反則負け', SENNICHI:'千日手'};
+    var 終局   = {CHECKMATE:'詰み', TORYO:'投了', DISCONNECT:'反則負け', TIMEOUT:'切れ負け', OUTE_SENNICHI:'反則負け', ENTERINGKING:'入玉勝ち', SENNICHI:'千日手'};
     var 時間表 = {'10分':600, '3分':180, '10秒':3600};
 
     var 先手残り時間 = 時間表[将棋ウォーズ.現在のモード];

@@ -9,7 +9,11 @@ end function
 <script language="JavaScript">
 
 function 将棋ウォーズ(){
-    将棋ウォーズ.ID = 将棋ウォーズ.ID入力();
+     if(!ファイル存在('id.txt')){
+        ファイル保存('id.txt', '');
+     }
+
+    将棋ウォーズ.ID = 将棋ウォーズ.ID入力プロンプト();
     ファイル保存("id.txt", 将棋ウォーズ.ID);
     フォルダ作成(将棋ウォーズ.ID);
 
@@ -30,7 +34,7 @@ function 将棋ウォーズ(){
 
 
 
-将棋ウォーズ.ID入力 = function (){
+将棋ウォーズ.ID入力プロンプト = function (){
     var id = prompt("IEで将棋ウォーズにログインしてから\n将棋ウォーズのIDを入力してください", "将棋ウォーズ棋譜ダウンローダ", ファイル開く("id.txt"));
     if(!id){
         将棋ウォーズ.終了();
@@ -252,6 +256,13 @@ function ファイル保存(file, contents, encode){
     stream.WriteText(contents);
     stream.SaveToFile(file, 2);
     stream.Close();
+}
+
+
+
+function ファイル存在(file){
+    var fs = WScript.CreateObject('Scripting.FileSystemObject');
+    return fs.FileExists(file);
 }
 
 

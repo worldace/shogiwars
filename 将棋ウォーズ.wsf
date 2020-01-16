@@ -79,7 +79,7 @@ function 将棋ウォーズ(){
 
 
 将棋ウォーズ.棋譜ページ解析 = function(棋譜ID){
-    var html = HTTP_GET("https://kif-pona.heroz.jp/games/" + 棋譜ID);
+    var html = HTTP_GET("https://shogiwars.heroz.jp/games/" + 棋譜ID);
     var json = html.match(/data-react-props="(.+?)"/)
     if(!json){
         return;
@@ -111,7 +111,7 @@ function 将棋ウォーズ(){
     kif += "先手：" + 先手名 + "\r\n";
     kif += "後手：" + 後手名 + "\r\n";
     kif += "棋戦：将棋ウォーズ " + 将棋ウォーズ.現在のモード + "\r\n";
-    kif += "場所：https://kif-pona.heroz.jp/games/" + 棋譜ID + "\r\n";
+    kif += "場所：https://shogiwars.heroz.jp/games/" + 棋譜ID + "\r\n";
     kif +=  kif指し手;
 
     var パス = 将棋ウォーズ.ID + '/' + 将棋ウォーズ.現在のモード + '/' + 将棋ウォーズ.KIFファイル名(棋譜ID);

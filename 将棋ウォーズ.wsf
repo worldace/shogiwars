@@ -354,8 +354,13 @@ Array.prototype.indexOf = function(obj, start){
 
 
 
-多重起動防止();
-将棋ウォーズ();
+try{
+    多重起動防止();
+    将棋ウォーズ();
+}
+catch(e){
+    将棋ウォーズ.終了('エラーが発生しました')
+}
 
 
 // ウォーズ仕様の参考ページ https://github.com/tosh1ki/shogiwars

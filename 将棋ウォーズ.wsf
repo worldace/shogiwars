@@ -79,25 +79,25 @@ function 将棋ウォーズ(){
 
 
 将棋ウォーズ.棋譜ページ解析 = function(棋譜ID){
-    var html   = HTTP_GET("https://kif-pona.heroz.jp/games/" + 棋譜ID);
-    var ソース = html.match(/data-react-props="(.+?)"/)
-    if(!ソース){
+    var html = HTTP_GET("https://kif-pona.heroz.jp/games/" + 棋譜ID);
+    var json = html.match(/data-react-props="(.+?)"/)
+    if(!json){
         return;
     }
-    ソース = ソース[1].replace(/&quot;/g, '"')
+    json = json[1].replace(/&quot;/g, '"')
 
-    var data = htmlfile.parentWindow.JSON.parse(ソース).gameHash
+    var data = htmlfile.parentWindow.JSON.parse(json).gameHash;
 
     if(!data.moves){
-        data.moves = []
+        data.moves = [];
     }
     if(data.init_sfen_position !== "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"){
         return;
     }
     var 先手段級 = data.sente_dan > 0 ? data.sente_dan + '段' : -data.sente_dan + '級';
     var 後手段級 = data.gote_dan  > 0 ? data.gote_dan  + '段' : -data.gote_dan  + '級';
-    var 先手名   = 棋譜ID.split(/-/)[0] + ' ' + 先手段級
-    var 後手名   = 棋譜ID.split(/-/)[1] + ' ' + 後手段級
+    var 先手名   = data.sente + ' ' + 先手段級
+    var 後手名   = data.gote  + ' ' + 後手段級
 
     将棋ウォーズ.KIF保存(棋譜ID, 先手名, 後手名, 将棋ウォーズ.KIF変換(data.moves, data.result));
     将棋ウォーズ.取得件数++;

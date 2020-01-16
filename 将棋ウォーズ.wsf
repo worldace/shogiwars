@@ -7,6 +7,9 @@ end function
 
 
 <script language="JavaScript">
+var htmlfile = WScript.CreateObject('htmlfile');
+htmlfile.write('<meta http-equiv="x-ua-compatible" content="IE=11">');
+
 
 function 将棋ウォーズ(){
     将棋ウォーズ.ID = 将棋ウォーズ.IDファイル開く();
@@ -77,17 +80,31 @@ function 将棋ウォーズ(){
 
 将棋ウォーズ.棋譜ページ解析 = function(棋譜ID){
     var html   = HTTP_GET("https://kif-pona.heroz.jp/games/" + 棋譜ID);
-    var ソース = html.substr(html.indexOf('gamedata'));
+    var ソース = html.match(/data-react-props="(.+?)"/)
 
-    if(ソース.indexOf('receiveMove') === -1){
+    if(!ソース){
         return;
     }
+    ソース = ソース[1].replace(/&quot;/g, '"')
+    var data = htmlfile.parentWindow.JSON.parse(ソース).gameHash
+    if(!data.moves){
+        return;
+    }
+    var 先手段級 = '段';
+    var 後手段級 = '段';
+    if(data.sente_dan < 0){
+        data.sente_dan = -data.sente_dan
+        先手段級 = '級';
+    }
+    if(data.gote_dan < 0){
+        data.gote_dan = -data.gote_dan
+        後手段級 = '級';
+    }
 
-    var 先手名 = 棋譜ID.split(/-/)[0] + ' ' + (ソース.match(/dan0: "(.+?)"/)[1] || '');
-    var 後手名 = 棋譜ID.split(/-/)[1] + ' ' + (ソース.match(/dan1: "(.+?)"/)[1] || '');
-    var csa    = ソース.match(/receiveMove\("(.+?)"/)[1];
+    var 先手名 = 棋譜ID.split(/-/)[0] + ' ' + data.sente_dan + 先手段級
+    var 後手名 = 棋譜ID.split(/-/)[1] + ' ' + data.gote_dan  + 後手段級
 
-    将棋ウォーズ.KIF保存(棋譜ID, 先手名, 後手名, 将棋ウォーズ.KIF変換(csa));
+    将棋ウォーズ.KIF保存(棋譜ID, 先手名, 後手名, 将棋ウォーズ.KIF変換(data.moves, data.result));
     将棋ウォーズ.取得件数++;
 };
 
@@ -108,7 +125,7 @@ function 将棋ウォーズ(){
 
 
 
-将棋ウォーズ.KIF変換 = function(csa){
+将棋ウォーズ.KIF変換 = function(csa, 終局文字列){  //[{t:599, n:0, m:"+7776FU"}, {t: 599, n: 1, m: "-8384FU"}]
     var result = "";
     var 駒変換 = {FU:'歩', KY:'香' ,KE:'桂' ,GI:'銀' ,KI:'金', KA:'角', HI:'飛', OU:'玉', TO:'と', NY:'成香' ,NK:'成桂', NG:'成銀', UM:'馬', RY:'龍'};
     var 逆変換 = {TO:'歩', NY:'香' ,NK:'桂', NG:'銀', UM:'角', RY:'飛'};
@@ -123,55 +140,49 @@ function 将棋ウォーズ(){
     var 先手累積時間 = 0;
     var 後手累積時間 = 0;
 
-    csa = csa.split("\t");
     for(var i = 0; i < csa.length; i++){
-        var 手数   = i + 1;
-        var 指し手 = csa[i].split(",")[0];
-        var 時間   = csa[i].split(",")[1];
+        var 手数   = csa[i].n + 1;
+        var 指し手 = csa[i].m;
+        var 時間   = csa[i].t;
+        var kif    = "";
 
-        if(指し手.match(/^[\+\-]/)){
-            var kif  = "";
-            var 手番 = 指し手.substr(0, 1);
-            var 前X  = 指し手.substr(1, 1);
-            var 前Y  = 指し手.substr(2, 1);
-            var 後X  = 指し手.substr(3, 1);
-            var 後Y  = 指し手.substr(4, 1);
-            var 駒   = 指し手.substr(5, 2);
-            
-            kif += 全数字[後X]; //"同　歩"みたいな表現に対応していない
-            kif += 漢数字[後Y];
+        var 手番 = 指し手.substr(0, 1);
+        var 前X  = 指し手.substr(1, 1);
+        var 前Y  = 指し手.substr(2, 1);
+        var 後X  = 指し手.substr(3, 1);
+        var 後Y  = 指し手.substr(4, 1);
+        var 駒   = 指し手.substr(5, 2);
+        
+        kif += 全数字[後X]; //"同　歩"みたいな表現に対応していない
+        kif += 漢数字[後Y];
 
-            if(成り駒.indexOf(駒) > -1 && 将棋ウォーズ.KIF変換.成り判定(csa, i, 手番, 駒, 前X, 前Y)){
-                kif += 逆変換[駒] + "成";
-            }
-            else{
-                kif += 駒変換[駒];
-            }
-            kif += (前X == 0) ? '打' : ('(' + 前X + 前Y + ')');
-
-            //時間
-            時間 = Number(時間.substr(1));
-            if(手番 === "+"){
-                var 消費時間  = 先手残り時間 - 時間;
-                先手累積時間 += 消費時間;
-                先手残り時間  = 時間;
-                kif          += "  " + 将棋ウォーズ.KIF変換.時間(消費時間, 先手累積時間);
-            }
-            else{
-                var 消費時間  = 後手残り時間 - 時間;
-                後手累積時間 += 消費時間;
-                後手残り時間  = 時間;
-                kif          += "  " + 将棋ウォーズ.KIF変換.時間(消費時間, 後手累積時間);
-            }
-            result += 手数 + " " + kif + "\r\n";
+        if(成り駒.indexOf(駒) > -1 && 将棋ウォーズ.KIF変換.成り判定(csa, i, 手番, 駒, 前X, 前Y)){
+            kif += 逆変換[駒] + "成";
         }
         else{
-            var 終局文字列 = 指し手.match(/(_WIN|DRAW)_(\w+)/);
-            if(終局文字列 && 終局文字列[2] in 終局){
-                result += 手数 + " " + 終局[終局文字列[2]] + "\r\n";
-            }
-            break;
+            kif += 駒変換[駒];
         }
+        kif += (前X == 0) ? '打' : ('(' + 前X + 前Y + ')');
+
+        //時間
+        if(手番 === "+"){
+            var 消費時間  = 先手残り時間 - 時間;
+            先手累積時間 += 消費時間;
+            先手残り時間  = 時間;
+            kif          += "  " + 将棋ウォーズ.KIF変換.時間(消費時間, 先手累積時間);
+        }
+        else{
+            var 消費時間  = 後手残り時間 - 時間;
+            後手累積時間 += 消費時間;
+            後手残り時間  = 時間;
+            kif          += "  " + 将棋ウォーズ.KIF変換.時間(消費時間, 後手累積時間);
+        }
+        result += 手数 + " " + kif + "\r\n";
+    }
+
+    var m = 終局文字列.match(/(_WIN|DRAW)_(\w+)/);
+    if(m && m[2] in 終局){
+        result += 手数+1 + " " + 終局[m[2]] + "\r\n";
     }
 
     return result;
@@ -183,8 +194,8 @@ function 将棋ウォーズ(){
     var 判定 = new RegExp('^\\' + 手番 + '\\d\\d' + 前X + 前Y);
 
     for(var i = 手数 - 2; i >= 0; i -= 2){
-        if(csa[i].match(判定)){
-            return csa[i].indexOf(成り駒) === -1; //前回の位置が成り駒だとfalse
+        if(csa[i].m.match(判定)){
+            return csa[i].m.indexOf(成り駒) === -1; //前回の位置が成り駒だとfalse
         }
     }
     return true;

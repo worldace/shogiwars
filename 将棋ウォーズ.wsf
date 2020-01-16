@@ -81,28 +81,23 @@ function 将棋ウォーズ(){
 将棋ウォーズ.棋譜ページ解析 = function(棋譜ID){
     var html   = HTTP_GET("https://kif-pona.heroz.jp/games/" + 棋譜ID);
     var ソース = html.match(/data-react-props="(.+?)"/)
-
     if(!ソース){
         return;
     }
     ソース = ソース[1].replace(/&quot;/g, '"')
+
     var data = htmlfile.parentWindow.JSON.parse(ソース).gameHash
+
     if(!data.moves){
+        data.moves = []
+    }
+    if(data.init_sfen_position !== "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"){
         return;
     }
-    var 先手段級 = '段';
-    var 後手段級 = '段';
-    if(data.sente_dan < 0){
-        data.sente_dan = -data.sente_dan
-        先手段級 = '級';
-    }
-    if(data.gote_dan < 0){
-        data.gote_dan = -data.gote_dan
-        後手段級 = '級';
-    }
-
-    var 先手名 = 棋譜ID.split(/-/)[0] + ' ' + data.sente_dan + 先手段級
-    var 後手名 = 棋譜ID.split(/-/)[1] + ' ' + data.gote_dan  + 後手段級
+    var 先手段級 = data.sente_dan > 0 ? data.sente_dan + '段' : -data.sente_dan + '級';
+    var 後手段級 = data.gote_dan  > 0 ? data.gote_dan  + '段' : -data.gote_dan  + '級';
+    var 先手名   = 棋譜ID.split(/-/)[0] + ' ' + 先手段級
+    var 後手名   = 棋譜ID.split(/-/)[1] + ' ' + 後手段級
 
     将棋ウォーズ.KIF保存(棋譜ID, 先手名, 後手名, 将棋ウォーズ.KIF変換(data.moves, data.result));
     将棋ウォーズ.取得件数++;
@@ -127,12 +122,12 @@ function 将棋ウォーズ(){
 
 将棋ウォーズ.KIF変換 = function(csa, 終局文字列){  //[{t:599, n:0, m:"+7776FU"}, {t: 599, n: 1, m: "-8384FU"}]
     var result = "";
+    var 手数   = 1;
     var 駒変換 = {FU:'歩', KY:'香' ,KE:'桂' ,GI:'銀' ,KI:'金', KA:'角', HI:'飛', OU:'玉', TO:'と', NY:'成香' ,NK:'成桂', NG:'成銀', UM:'馬', RY:'龍'};
     var 逆変換 = {TO:'歩', NY:'香' ,NK:'桂', NG:'銀', UM:'角', RY:'飛'};
     var 成り駒 = ['TO', 'NY', 'NK', 'NG', 'UM', 'RY'];
     var 全数字 = {1:'１', 2:'２', 3:'３', 4:'４', 5:'５', 6:'６', 7:'７', 8:'８', 9:'９'};
     var 漢数字 = {1:'一', 2:'二', 3:'三', 4:'四', 5:'五', 6:'六', 7:'七', 8:'八', 9:'九'};
-    var 終局   = {CHECKMATE:'詰み', TORYO:'投了', DISCONNECT:'反則負け', TIMEOUT:'切れ負け', OUTE_SENNICHI:'反則負け', ENTERINGKING:'入玉勝ち', SENNICHI:'千日手'};
     var 時間表 = {'10分':600, '3分':180, '10秒':3600};
 
     var 先手残り時間 = 時間表[将棋ウォーズ.現在のモード];
@@ -141,7 +136,6 @@ function 将棋ウォーズ(){
     var 後手累積時間 = 0;
 
     for(var i = 0; i < csa.length; i++){
-        var 手数   = csa[i].n + 1;
         var 指し手 = csa[i].m;
         var 時間   = csa[i].t;
         var kif    = "";
@@ -178,12 +172,10 @@ function 将棋ウォーズ(){
             kif          += "  " + 将棋ウォーズ.KIF変換.時間(消費時間, 後手累積時間);
         }
         result += 手数 + " " + kif + "\r\n";
+        手数++
     }
 
-    var m = 終局文字列.match(/(_WIN|DRAW)_(\w+)/);
-    if(m && m[2] in 終局){
-        result += 手数+1 + " " + 終局[m[2]] + "\r\n";
-    }
+    result += 将棋ウォーズ.KIF変換.終局(終局文字列, 手数)
 
     return result;
 };
@@ -217,6 +209,15 @@ function 将棋ウォーズ(){
 
     return "( " + 消費分 + ":" + 消費秒 + "/" + 累積時 + ":" + 累積分 + ":" + 累積秒 + ")";
 };
+
+
+
+将棋ウォーズ.KIF変換.終局 = function (終局文字列, 手数){
+    var 終局  = {CHECKMATE:'詰み', TORYO:'投了', DISCONNECT:'反則負け', TIMEOUT:'切れ負け', OUTE_SENNICHI:'反則負け', ENTERINGKING:'入玉勝ち', SENNICHI:'千日手'};
+    var match = 終局文字列.match(/(_WIN|DRAW)_(\w+)/);
+    return (match && match[2] in 終局) ? 手数 + " " + 終局[match[2]] + "\r\n" : ''
+}
+
 
 
 将棋ウォーズ.棋譜ID→ファイル名 = function (棋譜ID){

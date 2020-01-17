@@ -7,27 +7,23 @@ end function
 
 
 <script language="JavaScript">
-var htmlfile = WScript.CreateObject('htmlfile');
-htmlfile.write('<meta http-equiv="x-ua-compatible" content="IE=11">');
-
 
 function 将棋ウォーズ(){
-    将棋ウォーズ.ID = 将棋ウォーズ.IDファイル開く();
-    将棋ウォーズ.ID = 将棋ウォーズ.ID入力プロンプト(将棋ウォーズ.ID);
-
+    将棋ウォーズ.ID = 将棋ウォーズ.IDファイル();
+    将棋ウォーズ.ID = 将棋ウォーズ.入力プロンプト(将棋ウォーズ.ID);
     ファイル保存("id.txt", 将棋ウォーズ.ID);
-    フォルダ作成(将棋ウォーズ.ID);
 
+    フォルダ作成(将棋ウォーズ.ID);
     将棋ウォーズ.取得件数 = 0;
 
     var gtype = {'10分':'', '3分':'sb', '10秒':'s1'};
 
-    for(var key in gtype){
-        将棋ウォーズ.現在のモード = key;
-        フォルダ作成(将棋ウォーズ.ID + '/' + key);
-        将棋ウォーズ.ダウンロード済み棋譜 = ファイル一覧(将棋ウォーズ.ID + '/' + key);
+    for(var type in gtype){
+        将棋ウォーズ.現在のモード = type;
+        フォルダ作成(将棋ウォーズ.ID + '/' + type);
+        将棋ウォーズ.ダウンロード済み棋譜 = ファイル一覧(将棋ウォーズ.ID + '/' + type);
 
-        将棋ウォーズ.一覧ページ解析("https://shogiwars.heroz.jp/games/history?gtype=" + gtype[key] + "&user_id=" + 将棋ウォーズ.ID);
+        将棋ウォーズ.一覧ページ解析("https://shogiwars.heroz.jp/games/history?gtype=" + gtype[type] + "&user_id=" + 将棋ウォーズ.ID);
     }
 
     将棋ウォーズ.終了(将棋ウォーズ.取得件数 + "件の棋譜を取得しました")
@@ -35,7 +31,7 @@ function 将棋ウォーズ(){
 
 
 
-将棋ウォーズ.IDファイル開く = function (){
+将棋ウォーズ.IDファイル = function (){
     if(!ファイル存在('id.txt')){
         ファイル保存('id.txt', '');
     }
@@ -44,7 +40,7 @@ function 将棋ウォーズ(){
 
 
 
-将棋ウォーズ.ID入力プロンプト = function (id){
+将棋ウォーズ.入力プロンプト = function (id){
     id = prompt("IEで将棋ウォーズにログインしてから\n将棋ウォーズのIDを入力してください", "将棋ウォーズ棋譜ダウンローダ", id);
     if(!id){
         将棋ウォーズ.終了();
@@ -58,8 +54,7 @@ function 将棋ウォーズ(){
 
 
 将棋ウォーズ.一覧ページ解析 = function(url){
-    var document = IE(url);
-    var a        = document.querySelectorAll("a");
+    var a = IE(url).document.querySelectorAll("a");
 
     for(var i = 0; i < a.length; i++){
         if(a[i].textContent === '\u898B\u308B'){ //見る
@@ -86,7 +81,7 @@ function 将棋ウォーズ(){
     }
     json = json[1].replace(/&quot;/g, '"')
 
-    var data = htmlfile.parentWindow.JSON.parse(json).gameHash;
+    var data = IE.browser.document.parentWindow.JSON.parse(json).gameHash;
 
     if(!data || data.init_sfen_position !== "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"){
         return;
@@ -124,7 +119,7 @@ function 将棋ウォーズ(){
     var result = "";
     var 手数   = 1;
     var 駒変換 = {FU:'歩', KY:'香' ,KE:'桂' ,GI:'銀' ,KI:'金', KA:'角', HI:'飛', OU:'玉', TO:'と', NY:'成香' ,NK:'成桂', NG:'成銀', UM:'馬', RY:'龍'};
-    var 逆変換 = {TO:'歩', NY:'香' ,NK:'桂', NG:'銀', UM:'角', RY:'飛'};
+    var 逆変換 = {TO:'歩成', NY:'香成' ,NK:'桂成', NG:'銀成', UM:'角成', RY:'飛成'};
     var 成り駒 = ['TO', 'NY', 'NK', 'NG', 'UM', 'RY'];
     var 全数字 = {1:'１', 2:'２', 3:'３', 4:'４', 5:'５', 6:'６', 7:'７', 8:'８', 9:'９'};
     var 漢数字 = {1:'一', 2:'二', 3:'三', 4:'四', 5:'五', 6:'六', 7:'七', 8:'八', 9:'九'};
@@ -146,30 +141,23 @@ function 将棋ウォーズ(){
         var 後X  = 指し手.substr(3, 1);
         var 後Y  = 指し手.substr(4, 1);
         var 駒   = 指し手.substr(5, 2);
-        
+
         kif += 全数字[後X]; //"同　歩"みたいな表現に対応していない
         kif += 漢数字[後Y];
+        kif += (成り駒.indexOf(駒) > -1 && 将棋ウォーズ.KIF変換.成り判定(csa, i, 駒, 手番, 前X, 前Y)) ? 逆変換[駒] : 駒変換[駒];
+        kif += (前X == 0) ? '打' : '(' + 前X + 前Y + ')';
 
-        if(成り駒.indexOf(駒) > -1 && 将棋ウォーズ.KIF変換.成り判定(csa, i, 手番, 駒, 前X, 前Y)){
-            kif += 逆変換[駒] + "成";
-        }
-        else{
-            kif += 駒変換[駒];
-        }
-        kif += (前X == 0) ? '打' : ('(' + 前X + 前Y + ')');
-
-        //時間
         if(手番 === "+"){
             var 消費時間  = 先手残り時間 - 時間;
             先手累積時間 += 消費時間;
             先手残り時間  = 時間;
-            kif          += "  " + 将棋ウォーズ.KIF変換.時間(消費時間, 先手累積時間);
+            kif += "  " + 将棋ウォーズ.KIF変換.時間(消費時間, 先手累積時間);
         }
         else{
             var 消費時間  = 後手残り時間 - 時間;
             後手累積時間 += 消費時間;
             後手残り時間  = 時間;
-            kif          += "  " + 将棋ウォーズ.KIF変換.時間(消費時間, 後手累積時間);
+            kif += "  " + 将棋ウォーズ.KIF変換.時間(消費時間, 後手累積時間);
         }
         result += 手数 + " " + kif + "\r\n";
         手数++
@@ -182,12 +170,12 @@ function 将棋ウォーズ(){
 
 
 
-将棋ウォーズ.KIF変換.成り判定 = function (csa, 手数, 手番, 成り駒, 前X, 前Y){
+将棋ウォーズ.KIF変換.成り判定 = function (csa, i, 駒, 手番, 前X, 前Y){
     var 判定 = new RegExp('^\\' + 手番 + '\\d\\d' + 前X + 前Y);
 
-    for(var i = 手数 - 2; i >= 0; i -= 2){
+    for(i -= 2; i >= 0; i -= 2){ //前回の位置が成り駒だとfalse
         if(csa[i].m.match(判定)){
-            return csa[i].m.indexOf(成り駒) === -1; //前回の位置が成り駒だとfalse
+            return csa[i].m.indexOf(駒) === -1;
         }
     }
     return true;
@@ -250,7 +238,7 @@ function IE(url){
         }
         WScript.Sleep(100);
     }
-    return IE.browser.document;
+    return IE.browser;
 }
 
 
